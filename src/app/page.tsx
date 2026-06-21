@@ -690,6 +690,14 @@ function Certifications() {
 /* ---------- CONTACT ------------------------------------------------------- */
 
 function Contact() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText("vijaykumaran2007@gmail.com");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
       <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
@@ -708,39 +716,32 @@ function Contact() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 md:items-end">
-            <a
-              href="mailto:vijaykumaran2007@gmail.com"
+          <div className="flex flex-col gap-4 md:items-end">
+            <button
+              onClick={handleCopy}
               className="group inline-flex items-center justify-between gap-4 bg-[#fafaf9] text-[#0a0a0b] rounded-full px-6 py-4 font-semibold text-[15px] hover:bg-emerald-400 hover:text-[#052e16] active:translate-y-[1px] transition-colors md:w-fit"
             >
-              vijaykumaran2007@gmail.com
-              <ArrowUpRight className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
-            </a>
-            <div className="flex items-center gap-3 mt-1">
+              {copied ? "Copied to clipboard!" : "vijaykumaran2007@gmail.com"}
+              {!copied && <ArrowUpRight className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />}
+            </button>
+            <div className="flex items-center gap-4 mt-1">
               <a
                 href="https://github.com/vijaykumaran2007"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
+                className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
               >
-                <GithubIcon className="w-4 h-4" />
+                <GithubIcon className="w-6 h-6" />
               </a>
               <a
                 href="https://linkedin.com/in/vijay-adithiya"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
+                className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
               >
-                <LinkedinIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="mailto:vijaykumaran2007@gmail.com"
-                aria-label="Email"
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
-              >
-                <Mail className="w-4 h-4" />
+                <LinkedinIcon className="w-6 h-6" />
               </a>
             </div>
           </div>
