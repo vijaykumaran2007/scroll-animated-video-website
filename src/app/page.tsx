@@ -727,32 +727,32 @@ function Certifications() {
           {CERTIFICATIONS.map((cert, i) => (
             <div
               key={cert.name}
-              className={`group relative rounded-2xl border border-[#1f1f23] hover:border-[#2a2a30] p-6 md:p-8 transition-colors bg-[#131316] overflow-hidden flex flex-col justify-between ${
+              className={`group relative rounded-2xl border border-[#1f1f23] hover:border-emerald-500/30 p-6 md:p-8 transition-colors bg-[#131316] overflow-hidden flex flex-col justify-between ${
                 i === 0
                   ? "md:col-span-2 md:row-span-2"
                   : i === 3
-                  ? "md:col-span-3 md:row-span-1"
+                  ? "md:col-span-3 md:row-span-2"
                   : "md:col-span-1 md:row-span-1"
               }`}
             >
-              <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
+              <div className="absolute inset-0 z-0 opacity-50 group-hover:opacity-100 transition-all duration-700">
                 <img
                   src={cert.image}
                   alt={cert.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#131316] via-[#131316]/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#131316] via-[#131316]/80 to-transparent transition-opacity duration-700 group-hover:opacity-90" />
               </div>
-              <div className="relative z-10 flex flex-col justify-between h-full">
+              <div className="relative z-10 flex flex-col justify-between h-full pointer-events-none">
                 <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-5">
                   <Award className="w-3.5 h-3.5" />
                   {cert.issuer}
                 </div>
                 <div>
-                  <h3 className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 ? "text-[24px] md:text-3xl" : "text-[17px] md:text-xl"}`}>
+                  <h3 className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 || i === 3 ? "text-[24px] md:text-3xl" : "text-[17px] md:text-xl"}`}>
                     {cert.name}
                   </h3>
-                  <div className="mt-3 text-[12px] font-mono text-[#71717a]">
+                  <div className="mt-3 text-[12px] font-mono text-[#a1a1aa]">
                     Issued {cert.year}
                   </div>
                 </div>
