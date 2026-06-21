@@ -1,7 +1,7 @@
 "use client";
 
 import { useScroll, useTransform, motion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   ArrowUpRight,
   Cpu,
@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Award,
   MapPin,
+  ExternalLink,
 } from "lucide-react";
 import CreatureTracker from "./components/CreatureTracker";
 
@@ -49,6 +50,7 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 type Project = {
+  num: string;
   title: string;
   blurb: string;
   url: string;
@@ -56,13 +58,13 @@ type Project = {
   category: string;
   year: string;
   stack: ReadonlyArray<string>;
-  /** Whether to give this card a subtle accent wash. Used on at most one
-   *  card per design-taste 4.7 (bento background diversity). */
+  images: string[];
   accentWash?: boolean;
 };
 
 const PROJECTS: ReadonlyArray<Project> = [
   {
+    num: "01",
     title: "Heartomate",
     blurb:
       "A cross-platform hospital workflow app. Patient records, medicine inventory, and live bed allocation, all backed by Cloud Firestore.",
@@ -71,9 +73,15 @@ const PROJECTS: ReadonlyArray<Project> = [
     category: "Mobile",
     year: "2024",
     stack: ["Flutter", "Firebase", "Provider", "Cloud Firestore"],
+    images: [
+      "/images/Screenshot 2026-05-23 225458.png",
+      "/images/Screenshot 2026-05-23 225622.png",
+      "/images/Screenshot 2026-05-23 225458.png",
+    ],
     accentWash: true,
   },
   {
+    num: "02",
     title: "Disease Detective AI",
     blurb:
       "Web dashboard that pipes outbreak-prediction APIs into clean, comparative charts for diagnostic review.",
@@ -82,8 +90,14 @@ const PROJECTS: ReadonlyArray<Project> = [
     category: "Web",
     year: "2024",
     stack: ["Web App", "REST APIs", "Data Visualization"],
+    images: [
+      "/images/Screenshot 2026-05-10 151938.png",
+      "/images/Screenshot 2026-05-10 151938.png",
+      "/images/Screenshot 2026-05-10 151938.png",
+    ],
   },
   {
+    num: "03",
     title: "Aditya Paper Works",
     blurb:
       "Marketing site for a paper-products manufacturer, with custom scroll-driven timelines and responsive layout from scratch.",
@@ -92,8 +106,14 @@ const PROJECTS: ReadonlyArray<Project> = [
     category: "Web",
     year: "2025",
     stack: ["HTML5", "CSS3", "GSAP", "Responsive Layout"],
+    images: [
+      "/images/aditya.png",
+      "/images/aditya1.png",
+      "/images/aditya2.png",
+    ],
   },
   {
+    num: "04",
     title: "Surrendraw",
     blurb:
       "SaaS platform for Engineering Graphics education allowing digital drawings and instant AI-powered feedback on structural similarity and correctness, simplifying college assessments with automated grading.",
@@ -102,8 +122,14 @@ const PROJECTS: ReadonlyArray<Project> = [
     category: "Web",
     year: "2024",
     stack: ["React", "Python", "FastAPI", "OpenCV", "AI Grading"],
+    images: [
+      "/images/surrendraw.png",
+      "/images/surrendraw1.png",
+      "/images/surrendraw.png",
+    ],
   },
   {
+    num: "05",
     title: "Sentinel3",
     blurb:
       "AI EHR integrating ML diagnostics, outbreak mapping, and clinical decision support. Fuses 3 medical analysis layers for non-invasive insights. 2nd Runner-up at international hackathon.",
@@ -112,6 +138,11 @@ const PROJECTS: ReadonlyArray<Project> = [
     category: "Web",
     year: "2024",
     stack: ["ML", "EHR Systems", "Agentic AI", "Python", "React"],
+    images: [
+      "/images/sentinetal.png",
+      "/images/sentinetal1.png",
+      "/images/sentinetal2.png",
+    ],
     accentWash: true,
   },
 ];
@@ -317,6 +348,75 @@ function Hero({
   );
 }
 
+const Magnet = ({
+  children,
+  padding = 150,
+  strength = 3,
+  activeTransition = "transform 0.3s ease-out",
+  inactiveTransition = "transform 0.6s ease-in-out",
+  className = "w-full flex justify-center",
+}: {
+  children: React.ReactNode;
+  padding?: number;
+  strength?: number;
+  activeTransition?: string;
+  inactiveTransition?: string;
+  className?: string;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState("translate3d(0px, 0px, 0px)");
+  const [transition, setTransition] = useState(inactiveTransition);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const distanceX = e.clientX - centerX;
+      const distanceY = e.clientY - centerY;
+      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+      const threshold = Math.max(rect.width, rect.height) / 2 + padding;
+      if (distance < threshold) {
+        setTransition(activeTransition);
+        const moveX = distanceX / strength;
+        const moveY = distanceY / strength;
+        setTransform(`translate3d(${moveX}px, ${moveY}px, 0px)`);
+      } else {
+        setTransition(inactiveTransition);
+        setTransform("translate3d(0px, 0px, 0px)");
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [padding, strength, activeTransition, inactiveTransition]);
+
+  const handleMouseLeave = () => {
+    setTransition(inactiveTransition);
+    setTransform("translate3d(0px, 0px, 0px)");
+  };
+
+  return (
+    <div
+      ref={ref}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform,
+        transition,
+        willChange: "transform",
+      }}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+};
+
 /* ---------- PROJECTS ------------------------------------------------------ */
 
 function Projects() {
@@ -329,20 +429,18 @@ function Projects() {
         <SectionHeader
           eyebrow="Projects"
           title="Selected work"
-          intro="Three projects across mobile, web, and ML. Each one started as a problem worth solving."
+          intro="Five projects across mobile, web, and ML. Each one started as a problem worth solving."
         />
 
-        {/* Asymmetric grid: 8 + 4 split, full width, 4 + 8 split. */}
-        <div className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <ProjectCard project={PROJECTS[0]} className="lg:col-span-8" />
-          <ProjectCard project={PROJECTS[1]} className="lg:col-span-4" />
-          <ProjectCard
-            project={PROJECTS[2]}
-            className="lg:col-span-12"
-            variant="full"
-          />
-          <ProjectCard project={PROJECTS[3]} className="lg:col-span-4" />
-          <ProjectCard project={PROJECTS[4]} className="lg:col-span-8" />
+        <div className="mt-16 flex flex-col items-center mt-[15vh]">
+          {PROJECTS.map((project, i) => (
+            <ProjectCard
+              key={project.title}
+              project={project}
+              index={i}
+              total={PROJECTS.length}
+            />
+          ))}
         </div>
       </div>
     </section>
@@ -351,104 +449,158 @@ function Projects() {
 
 function ProjectCard({
   project,
-  className = "",
-  variant = "default",
+  index,
+  total,
 }: {
   project: Project;
-  className?: string;
-  variant?: "default" | "full";
+  index: number;
+  total: number;
 }) {
-  const wash = project.accentWash
-    ? "bg-gradient-to-br from-emerald-500/[0.07] via-transparent to-transparent"
-    : "bg-[#131316]";
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
+
+  const targetScale = 1 - (total - 1 - index) * 0.03;
+  const scale = useTransform(scrollYProgress, [0, 1], [1, targetScale]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePos({ x, y });
+  };
+
+  const handleMouseLeave = () => {
+    setMousePos({ x: 0, y: 0 });
+  };
+
+  const themeGlows = [
+    "radial-gradient(circle at 80% 20%, rgba(34,197,94,0.12) 0%, transparent 60%)",
+    "radial-gradient(circle at 80% 20%, rgba(59,130,246,0.12) 0%, transparent 60%)",
+    "radial-gradient(circle at 80% 20%, rgba(99,102,241,0.12) 0%, transparent 60%)",
+    "radial-gradient(circle at 80% 20%, rgba(236,72,153,0.12) 0%, transparent 60%)",
+    "radial-gradient(circle at 80% 20%, rgba(234,179,8,0.12) 0%, transparent 60%)",
+  ];
+
+  const themeBorderHover = [
+    "hover:border-green-500/30",
+    "hover:border-blue-500/30",
+    "hover:border-indigo-500/30",
+    "hover:border-pink-500/30",
+    "hover:border-yellow-500/30",
+  ];
 
   return (
-    <a
-      href={project.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`group relative block rounded-2xl border border-[#1f1f23] hover:border-[#2a2a30] p-7 md:p-10 transition-colors overflow-hidden ${wash} ${className}`}
+    <div
+      ref={containerRef}
+      className="h-[75vh] md:h-[80vh] sticky flex items-center justify-center w-full"
+      style={{ top: `calc(5.5rem + ${index * 32}px)` }}
     >
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div className="flex items-center gap-2.5 text-[11px] font-mono uppercase tracking-[0.14em] text-[#71717a]">
-          <Layers className="w-3.5 h-3.5" />
-          {project.stackLabel}
-        </div>
-        <ArrowUpRight className="w-4 h-4 text-[#71717a] group-hover:text-emerald-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all" />
-      </div>
-
-      <div
-        className={`${
-          variant === "full"
-            ? "grid md:grid-cols-[1fr_240px] gap-10"
-            : "flex flex-col"
-        }`}
+      <motion.div
+        style={{ scale }}
+        className={`w-full max-w-5xl rounded-[30px] sm:rounded-[40px] md:rounded-[48px] border border-[#1f1f23] bg-[#0C0C0C] p-4 sm:p-5 md:p-6 shadow-2xl overflow-hidden relative group/card transition-all duration-500 ${themeBorderHover[index]}`}
       >
-        <div className="flex-1">
-          <h3 className="text-2xl md:text-[1.75rem] font-semibold tracking-[-0.02em] text-[#fafaf9] group-hover:text-emerald-400 transition-colors leading-[1.1]">
-            {project.title}
-          </h3>
-          <p className="mt-4 text-[15px] leading-[1.6] text-[#a1a1aa] max-w-prose">
-            {project.blurb}
-          </p>
-          <ul className="mt-6 flex flex-wrap gap-2">
-            {project.stack.map((tech) => (
-              <li
-                key={tech}
-                className="text-[12px] font-mono text-[#a1a1aa] bg-[#0a0a0b] border border-[#1f1f23] px-2.5 py-1 rounded-full"
-              >
-                {tech}
-              </li>
-            ))}
-          </ul>
-        </div>
-
         <div
-          className={`${
-            variant === "full"
-              ? "flex flex-col gap-5 md:border-l md:border-[#1f1f23] md:pl-8"
-              : "mt-8 flex items-center justify-between text-[12px] font-mono text-[#71717a]"
-          }`}
-        >
-          {variant === "full" ? (
-            <>
-              <Meta label="Category" value={project.category} />
-              <Meta label="Year" value={project.year} />
-              <Meta label="Status" value="Live" accent />
-            </>
-          ) : (
-            <>
-              <span>{project.category}</span>
-              <span>{project.year}</span>
-            </>
-          )}
-        </div>
-      </div>
-    </a>
-  );
-}
+          className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none z-0"
+          style={{ background: themeGlows[index] }}
+        />
 
-function Meta({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: string;
-  accent?: boolean;
-}) {
-  return (
-    <div>
-      <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#71717a]">
-        {label}
-      </div>
-      <div
-        className={`mt-1.5 text-sm font-medium ${
-          accent ? "text-emerald-400" : "text-[#fafaf9]"
-        }`}
-      >
-        {value}
-      </div>
+        <div className="relative z-10 flex flex-col h-full justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4 md:mb-5">
+            <span
+              className="font-black leading-none select-none text-[#fafaf9]/10"
+              style={{ fontSize: "clamp(2rem, 6vw, 80px)" }}
+            >
+              {project.num}
+            </span>
+            <div className="flex-1 flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[#a1a1aa] text-xs uppercase tracking-widest font-semibold border border-[#2a2a30] rounded-full px-3 py-1 bg-white/5">
+                  {project.category}
+                </span>
+                {project.stack.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-white/5 text-white/80 border border-white/10"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white leading-tight">
+                {project.title}
+              </h3>
+              <p className="text-sm text-zinc-400 leading-relaxed max-w-lg font-medium">
+                {project.blurb}
+              </p>
+            </div>
+            
+            <Magnet padding={40} strength={4} className="w-fit flex-shrink-0 hidden md:flex">
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-full border border-[#2a2a30] px-5 py-2.5 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 hover:border-white transition-all duration-300 w-fit"
+              >
+                View
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </Magnet>
+          </div>
+
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            className="flex gap-3 md:gap-4 project-hover-card group/img overflow-hidden"
+          >
+            <div className="flex flex-col gap-3 md:gap-4" style={{ width: "40%" }}>
+              <div className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80" style={{ height: "clamp(90px, 12vw, 170px)" }}>
+                <img
+                  src={project.images[0]}
+                  alt={`${project.title} 1`}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  style={{
+                    transform: `scale(1.08) translate3d(${mousePos.x * -10}px, ${mousePos.y * -10}px, 0px)`,
+                    transition: "transform 0.15s ease-out",
+                  }}
+                />
+              </div>
+              <div className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80" style={{ height: "clamp(120px, 18vw, 250px)" }}>
+                <img
+                  src={project.images[1]}
+                  alt={`${project.title} 2`}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  style={{
+                    transform: `scale(1.08) translate3d(${mousePos.x * -14}px, ${mousePos.y * -14}px, 0px)`,
+                    transition: "transform 0.15s ease-out",
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80">
+              <img
+                src={project.images[2]}
+                alt={`${project.title} 3`}
+                loading="lazy"
+                className="w-full h-full object-cover"
+                style={{
+                  transform: `scale(1.08) translate3d(${mousePos.x * -12}px, ${mousePos.y * -12}px, 0px)`,
+                  transition: "transform 0.15s ease-out",
+                }}
+              />
+            </div>
+          </a>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -584,30 +736,39 @@ function Certifications() {
           intro="Professional credentials and specialized training courses."
         />
 
-        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {CERTIFICATIONS.map((cert) => (
+        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]">
+          {CERTIFICATIONS.map((cert, i) => (
             <div
               key={cert.name}
-              className="group relative rounded-2xl border border-[#1f1f23] hover:border-[#2a2a30] p-6 md:p-8 transition-colors bg-[#131316] overflow-hidden"
+              className={`group relative rounded-2xl border border-[#1f1f23] hover:border-[#2a2a30] p-6 md:p-8 transition-colors bg-[#131316] overflow-hidden flex flex-col justify-between ${
+                i === 0
+                  ? "md:col-span-2 md:row-span-2"
+                  : i === 3
+                  ? "md:col-span-3 md:row-span-1"
+                  : "md:col-span-1 md:row-span-1"
+              }`}
             >
-              <div className="mb-6 w-full h-48 rounded-xl overflow-hidden bg-[#0a0a0b] border border-[#1f1f23]">
+              <div className="absolute inset-0 z-0 opacity-20 group-hover:opacity-40 transition-opacity duration-500">
                 <img
                   src={cert.image}
                   alt={cert.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#131316] via-[#131316]/80 to-transparent" />
               </div>
-              <div className="flex items-start justify-between gap-4 mb-5">
-                <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-[#71717a]">
+              <div className="relative z-10 flex flex-col justify-between h-full">
+                <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-5">
                   <Award className="w-3.5 h-3.5" />
                   {cert.issuer}
                 </div>
-              </div>
-              <h3 className="text-[17px] font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors">
-                {cert.name}
-              </h3>
-              <div className="mt-5 text-[12px] font-mono text-[#71717a]">
-                Issued {cert.year}
+                <div>
+                  <h3 className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 ? "text-[24px] md:text-3xl" : "text-[17px] md:text-xl"}`}>
+                    {cert.name}
+                  </h3>
+                  <div className="mt-3 text-[12px] font-mono text-[#71717a]">
+                    Issued {cert.year}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
