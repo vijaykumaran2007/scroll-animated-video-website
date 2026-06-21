@@ -189,16 +189,16 @@ const CERTIFICATIONS: ReadonlyArray<{
     image: "/images/qualcomm.png",
   },
   {
-    name: "Flutter & Dart: The Complete Development Guide",
-    issuer: "Udemy",
-    year: "2023",
-    image: "/images/flutter.png",
-  },
-  {
     name: "Python Programming Foundation",
     issuer: "Onwingspan",
     year: "2023",
     image: "/images/pythoncertificate.png",
+  },
+  {
+    name: "Flutter & Dart: The Complete Development Guide",
+    issuer: "Udemy",
+    year: "2023",
+    image: "/images/flutter.png",
   },
 ];
 
@@ -581,46 +581,61 @@ function Skills() {
       id="about"
       className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]"
     >
-      <div className="max-w-5xl mx-auto px-6 py-24 md:py-28">
-        <SectionHeader
-          eyebrow="About"
-          title="What I work with"
-          intro="Tools I reach for daily. Comfortable across the full stack of an app - design, code, deploy."
-        />
-
-        <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1f1f23] rounded-2xl overflow-hidden border border-[#1f1f23]">
-          {SKILLS.map((group) => (
-            <div
-              key={group.group}
-              className="bg-[#0a0a0b] p-6 md:p-7 flex flex-col gap-4"
-            >
-              <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
-                <Code2 className="w-3.5 h-3.5" />
-                {group.group}
-              </div>
-              <ul className="flex flex-col gap-1.5">
-                {group.items.map((item) => (
-                  <li
-                    key={item}
-                    className="text-[14px] text-[#fafaf9] leading-snug"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
+      <div className="max-w-7xl mx-auto px-6 py-24 md:py-28">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12">
+          {/* ABOUT / SKILLS */}
+          <div>
+            <SectionHeader
+              eyebrow="About"
+              title="What I work with"
+              intro="Tools I reach for daily. Comfortable across the full stack of an app - design, code, deploy."
+            />
+            <div className="mt-14 grid grid-cols-2 gap-px bg-[#1f1f23] rounded-2xl overflow-hidden border border-[#1f1f23]">
+              {SKILLS.map((group) => (
+                <div
+                  key={group.group}
+                  className="bg-[#0a0a0b] p-6 md:p-7 flex flex-col gap-4"
+                >
+                  <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
+                    <Code2 className="w-3.5 h-3.5" />
+                    {group.group}
+                  </div>
+                  <ul className="flex flex-col gap-1.5">
+                    {group.items.map((item) => (
+                      <li
+                        key={item}
+                        className="text-[14px] text-[#fafaf9] leading-snug"
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-[12px] font-mono text-[#71717a]">
-          <span className="text-emerald-400 font-semibold uppercase tracking-widest">Experience</span>
-          <span>GDG PSG iTech active member</span>
-          <span className="text-[#3f3f46]">/</span>
-          <span>Coding Club member</span>
-          <span className="text-[#3f3f46]">/</span>
-          <span>Member of PSG iTech Software Development Cell</span>
-          <span className="text-[#3f3f46]">/</span>
-          <span>Hackathon finalist</span>
+          {/* EXPERIENCE */}
+          <div>
+            <SectionHeader
+              eyebrow="Experience"
+              title="Where I've been"
+              intro="Communities, teams, and active involvements."
+            />
+            <div className="mt-14 flex flex-col gap-4">
+              {[
+                "Member of PSG iTech Software Development Cell",
+                "GDG PSG iTech active member",
+                "Coding Club member",
+                "Hackathon finalist"
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-4 bg-[#131316] p-6 rounded-2xl border border-[#1f1f23] transition-colors hover:border-[#2a2a30]">
+                  <div className="mt-1.5 text-emerald-400 text-[10px]">●</div>
+                  <div className="text-[16px] font-medium text-[#fafaf9] leading-snug">{item}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
