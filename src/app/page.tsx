@@ -65,39 +65,6 @@ type Project = {
 const PROJECTS: ReadonlyArray<Project> = [
   {
     num: "01",
-    title: "Heartomate",
-    blurb:
-      "A cross-platform hospital workflow app. Patient records, medicine inventory, and live bed allocation, all backed by Cloud Firestore.",
-    url: "https://heartomate.web.app/",
-    stackLabel: "Flutter / Firebase",
-    category: "Mobile",
-    year: "2024",
-    stack: ["Flutter", "Firebase", "Provider", "Cloud Firestore"],
-    images: [
-      "/images/Screenshot 2026-05-23 225458.png",
-      "/images/Screenshot 2026-05-23 225622.png",
-      "/images/Screenshot 2026-05-23 225458.png",
-    ],
-    accentWash: true,
-  },
-  {
-    num: "02",
-    title: "Disease Detective AI",
-    blurb:
-      "Web dashboard that pipes outbreak-prediction APIs into clean, comparative charts for diagnostic review.",
-    url: "https://diseasedetectiveai.web.app/",
-    stackLabel: "Web / Data",
-    category: "Web",
-    year: "2024",
-    stack: ["Web App", "REST APIs", "Data Visualization"],
-    images: [
-      "/images/Screenshot 2026-05-10 151938.png",
-      "/images/Screenshot 2026-05-10 151938.png",
-      "/images/Screenshot 2026-05-10 151938.png",
-    ],
-  },
-  {
-    num: "03",
     title: "Aditya Paper Works",
     blurb:
       "Marketing site for a paper-products manufacturer, with custom scroll-driven timelines and responsive layout from scratch.",
@@ -111,9 +78,10 @@ const PROJECTS: ReadonlyArray<Project> = [
       "/images/aditya1.png",
       "/images/aditya2.png",
     ],
+    accentWash: true,
   },
   {
-    num: "04",
+    num: "02",
     title: "Surrendraw",
     blurb:
       "SaaS platform for Engineering Graphics education allowing digital drawings and instant AI-powered feedback on structural similarity and correctness, simplifying college assessments with automated grading.",
@@ -129,7 +97,7 @@ const PROJECTS: ReadonlyArray<Project> = [
     ],
   },
   {
-    num: "05",
+    num: "03",
     title: "Sentinel3",
     blurb:
       "AI EHR integrating ML diagnostics, outbreak mapping, and clinical decision support. Fuses 3 medical analysis layers for non-invasive insights. 2nd Runner-up at international hackathon.",
@@ -645,10 +613,12 @@ function Skills() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-[12px] font-mono text-[#71717a]">
-          <span className="text-emerald-400">●</span>
+          <span className="text-emerald-400 font-semibold uppercase tracking-widest">Experience</span>
           <span>GDG PSG iTech active member</span>
           <span className="text-[#3f3f46]">/</span>
           <span>Coding Club member</span>
+          <span className="text-[#3f3f46]">/</span>
+          <span>Member of PSG iTech Software Development Cell</span>
           <span className="text-[#3f3f46]">/</span>
           <span>Hackathon finalist</span>
         </div>
@@ -729,14 +699,16 @@ function Education() {
 function Certifications() {
   return (
     <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
-      <div className="max-w-5xl mx-auto px-6 py-24 md:py-28">
-        <SectionHeader
-          eyebrow="Certifications"
-          title="Licenses & Certifications"
-          intro="Professional credentials and specialized training courses."
-        />
+      <div className="w-full px-4 md:px-12 py-24 md:py-28">
+        <div className="max-w-5xl mx-auto mb-14">
+          <SectionHeader
+            eyebrow="Certifications"
+            title="Licenses & Certifications"
+            intro="Professional credentials and specialized training courses."
+          />
+        </div>
 
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]">
           {CERTIFICATIONS.map((cert, i) => (
             <div
               key={cert.name}
