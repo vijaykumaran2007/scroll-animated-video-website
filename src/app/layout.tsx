@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Audiowide, Plus_Jakarta_Sans, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
+const audiowide = Audiowide({
+  weight: "400",
+  variable: "--font-audiowide",
+  subsets: ["latin"],
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
+const robotoMono = Roboto_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "My personal portfolio website.",
+  title: "Vijay Adithiya E | Portfolio",
+  description: "Computer Science Student, Flutter & AI Enthusiast Portfolio website.",
 };
 
 export default function RootLayout({
@@ -24,9 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${audiowide.variable} ${plusJakartaSans.variable} ${robotoMono.variable} antialiased`}>
         {children}
       </body>
     </html>
   );
 }
+

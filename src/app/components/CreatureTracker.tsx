@@ -168,7 +168,7 @@ export default function CreatureTracker() {
     tryGyro();
     window.addEventListener('mousemove', onMouse, { passive: true });
     window.addEventListener('touchmove', onTouch, { passive: true });
-    (window as unknown as Record<string, unknown>).__attachGyro = attachGyro;
+    (window as any).__attachGyro = attachGyro;
 
     return () => {
       window.removeEventListener('mousemove', onMouse);
@@ -182,18 +182,18 @@ export default function CreatureTracker() {
     if (typeof DOE.requestPermission === 'function') {
       const result = await DOE.requestPermission();
       if (result === 'granted') {
-        (window as unknown as Record<string, unknown>).__attachGyro?.();
+        (window as any).__attachGyro?.();
         setNeedsGyroPermission(false);
       }
     }
   };
 
   return (
-    <>
+    <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
       {/* Loading overlay */}
       {!ready && (
         <div style={{
-          position: 'fixed', inset: 0, background: '#000',
+          position: 'absolute', inset: 0, background: '#09090B',
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           zIndex: 10, gap: '16px',
@@ -205,15 +205,15 @@ export default function CreatureTracker() {
           }}>
             <div style={{
               height: '100%', width: `${progress}%`,
-              background: '#fff', borderRadius: '999px',
+              background: '#10B981', borderRadius: '999px',
               transition: 'width 0.1s ease',
             }} />
           </div>
           <p style={{
             color: 'rgba(255,255,255,0.4)', fontSize: '12px',
-            fontFamily: 'monospace', letterSpacing: '0.05em',
+            fontFamily: 'var(--font-mono), monospace', letterSpacing: '0.05em',
           }}>
-            Loading {progress}%
+            CORE STARTING: {progress}%
           </p>
         </div>
       )}
@@ -222,9 +222,10 @@ export default function CreatureTracker() {
       <canvas
         ref={canvasRef}
         style={{
-          position: 'fixed', inset: 0, display: 'block',
+          position: 'absolute', inset: 0, display: 'block',
+          width: '100%', height: '100%',
           opacity: ready ? 1 : 0,
-          transition: 'opacity 0.4s ease',
+          transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       />
 
@@ -233,22 +234,23 @@ export default function CreatureTracker() {
         <button
           onClick={requestGyroPermission}
           style={{
-            position: 'fixed', bottom: '32px', left: '50%',
+            position: 'absolute', bottom: '32px', left: '50%',
             transform: 'translateX(-50%)', zIndex: 20,
-            background: 'rgba(255,255,255,0.12)',
+            background: 'rgba(255,255,255,0.08)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.2)',
+            border: '1px solid rgba(255,255,255,0.15)',
             color: '#fff', fontSize: '14px',
-            fontFamily: 'system-ui, sans-serif',
+            fontFamily: 'var(--font-sans), sans-serif',
             padding: '12px 24px', borderRadius: '999px',
             cursor: 'pointer', letterSpacing: '0.02em',
             whiteSpace: 'nowrap',
+            transition: 'all 0.2s ease',
           }}
         >
-          Enable tilt to control
+          🎮 Enable Tilt Controls
         </button>
       )}
-    </>
+    </div>
   );
 }
