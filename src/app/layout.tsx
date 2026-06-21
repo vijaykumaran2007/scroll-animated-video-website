@@ -1,27 +1,25 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Manrope, Roboto_Mono } from "next/font/google";
+import { Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-space-grotesk",
-  subsets: ["latin"],
-});
-
-const manrope = Manrope({
+const sora = Sora({
   weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-sans",
+  variable: "--font-sora",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const robotoMono = Roboto_Mono({
+const jetbrainsMono = JetBrains_Mono({
+  weight: ["400", "500"],
   variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Vijay Adithiya E | Portfolio",
-  description: "Computer Science Student, Flutter & AI Enthusiast Portfolio website.",
+  description:
+    "Computer science student building mobile software with Flutter and training machine learning models.",
 };
 
 export default function RootLayout({
@@ -30,12 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${spaceGrotesk.variable} ${manrope.variable} ${robotoMono.variable} antialiased`}>
-        {children}
-      </body>
+    <html lang="en" className={`${sora.variable} ${jetbrainsMono.variable}`}>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }
-
-
