@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Audiowide, Plus_Jakarta_Sans, Roboto_Mono } from "next/font/google";
+import { Space_Grotesk, Manrope, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
-const audiowide = Audiowide({
-  weight: "400",
-  variable: "--font-audiowide",
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const manrope = Manrope({
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-sans",
   subsets: ["latin"],
 });
@@ -30,10 +31,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${audiowide.variable} ${plusJakartaSans.variable} ${robotoMono.variable} antialiased`}>
+      <body className={`${spaceGrotesk.variable} ${manrope.variable} ${robotoMono.variable} antialiased`}>
         {children}
       </body>
     </html>
   );
 }
+
 

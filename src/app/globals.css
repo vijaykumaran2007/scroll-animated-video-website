@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-audiowide: var(--font-audiowide);
+  --font-space-grotesk: var(--font-space-grotesk);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   
