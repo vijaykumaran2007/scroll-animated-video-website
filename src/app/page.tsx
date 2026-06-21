@@ -139,36 +139,6 @@ const SKILLS: ReadonlyArray<{ group: string; items: string[] }> = [
   },
 ];
 
-const EDUCATION: ReadonlyArray<{
-  school: string;
-  qualification: string;
-  detail: string;
-  year: string;
-}> = [
-  {
-    school: "PSG iTech, Anna University",
-    qualification: "B.E. Computer Science & Engineering",
-    detail: "CGPA 8.5 / 10",
-    year: "2025 - 2029",
-  },
-  {
-    school: "Lisieux CMI Public School, CBSE",
-    qualification: "Class XII (HSC)",
-    detail: "95.2%",
-    year: "2025",
-  },
-  {
-    school: "Lisieux CMI Public School, CBSE",
-    qualification: "Class X (SSLC)",
-    detail: "92.4%",
-    year: "2023",
-  },
-];
-
-const HONORS: ReadonlyArray<string> = [
-  "Finalist, GDG Hackathonic 2.0",
-  "Finalist, Yuktha Hackathon",
-];
 
 const CERTIFICATIONS: ReadonlyArray<{
   name: string;
@@ -216,9 +186,8 @@ export default function Home() {
       className="relative min-h-screen bg-[#0a0a0b] text-[#fafaf9] selection:bg-emerald-500 selection:text-emerald-950"
     >
       <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} />
-      <Projects />
       <Skills />
-      <Education />
+      <Projects />
       <Certifications />
       <Contact />
       <Footer />
@@ -391,7 +360,7 @@ function Projects() {
   return (
     <section
       id="projects"
-      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] rounded-t-[2rem] shadow-[0_-30px_60px_rgba(0,0,0,0.75)]"
+      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]"
     >
       <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
         <SectionHeader
@@ -470,7 +439,7 @@ function ProjectCard({
     >
       <motion.div
         style={{ scale }}
-        className={`w-full max-w-5xl rounded-[30px] sm:rounded-[40px] md:rounded-[48px] border border-[#1f1f23] bg-[#0C0C0C] p-4 sm:p-5 md:p-6 shadow-2xl overflow-hidden relative group/card transition-all duration-500 ${themeBorderHover[index]}`}
+        className={`w-full max-w-5xl rounded-[30px] sm:rounded-[40px] md:rounded-[48px] border border-[#2e2e36] bg-[#1c1c21] p-4 sm:p-5 md:p-6 shadow-2xl overflow-hidden relative group/card transition-all duration-500 ${themeBorderHover[index]}`}
       >
         <div
           className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none z-0"
@@ -506,8 +475,12 @@ function ProjectCard({
                 {project.blurb}
               </p>
             </div>
-            
-            <Magnet padding={40} strength={4} className="w-fit flex-shrink-0 hidden md:flex">
+
+            <Magnet
+              padding={40}
+              strength={4}
+              className="w-fit flex-shrink-0 hidden md:flex"
+            >
               <a
                 href={project.url}
                 target="_blank"
@@ -528,8 +501,14 @@ function ProjectCard({
             onMouseLeave={handleMouseLeave}
             className="flex gap-3 md:gap-4 project-hover-card group/img overflow-hidden"
           >
-            <div className="flex flex-col gap-3 md:gap-4" style={{ width: "40%" }}>
-              <div className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80" style={{ height: "clamp(90px, 12vw, 170px)" }}>
+            <div
+              className="flex flex-col gap-3 md:gap-4"
+              style={{ width: "40%" }}
+            >
+              <div
+                className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
+                style={{ height: "clamp(90px, 12vw, 170px)" }}
+              >
                 <img
                   src={project.images[0]}
                   alt={`${project.title} 1`}
@@ -541,7 +520,10 @@ function ProjectCard({
                   }}
                 />
               </div>
-              <div className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80" style={{ height: "clamp(120px, 18vw, 250px)" }}>
+              <div
+                className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
+                style={{ height: "clamp(120px, 18vw, 250px)" }}
+              >
                 <img
                   src={project.images[1]}
                   alt={`${project.title} 2`}
@@ -579,7 +561,7 @@ function Skills() {
   return (
     <section
       id="about"
-      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]"
+      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] rounded-t-[2rem] shadow-[0_-30px_60px_rgba(0,0,0,0.75)]"
     >
       <div className="max-w-7xl mx-auto px-6 py-24 md:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12">
@@ -627,82 +609,20 @@ function Skills() {
                 "Member of PSG iTech Software Development Cell",
                 "GDG PSG iTech active member",
                 "Coding Club member",
-                "Hackathon finalist"
+                "Hackathon finalist",
               ].map((item, idx) => (
-                <div key={idx} className="flex items-start gap-4 bg-[#131316] p-6 rounded-2xl border border-[#1f1f23] transition-colors hover:border-[#2a2a30]">
+                <div
+                  key={idx}
+                  className="flex items-start gap-4 bg-[#131316] p-6 rounded-2xl border border-[#1f1f23] transition-colors hover:border-[#2a2a30]"
+                >
                   <div className="mt-1.5 text-emerald-400 text-[10px]">●</div>
-                  <div className="text-[16px] font-medium text-[#fafaf9] leading-snug">{item}</div>
+                  <div className="text-[16px] font-medium text-[#fafaf9] leading-snug">
+                    {item}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- EDUCATION ----------------------------------------------------- */
-
-function Education() {
-  return (
-    <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
-      <div className="max-w-5xl mx-auto px-6 py-24 md:py-28">
-        <SectionHeader
-          eyebrow="Education"
-          title="Where I studied"
-          intro="Foundation first. Curriculum I work through because it builds the right habits."
-        />
-
-        <ol className="mt-14 flex flex-col">
-          {EDUCATION.map((row, idx) => (
-            <li
-              key={row.qualification + row.year}
-              className={`flex flex-col md:flex-row md:items-baseline justify-between gap-3 md:gap-10 py-7 ${
-                idx === 0 ? "border-t border-[#1f1f23]" : ""
-              } border-b border-[#1f1f23]`}
-            >
-              <div className="flex items-start gap-4 md:gap-6 flex-1">
-                <span className="font-mono text-[11px] text-[#71717a] tabular-nums pt-1">
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
-                <div>
-                  <div className="text-[17px] font-medium text-[#fafaf9] tracking-[-0.01em]">
-                    {row.qualification}
-                  </div>
-                  <div className="mt-1 text-[14px] text-[#a1a1aa]">
-                    {row.school}
-                  </div>
-                </div>
-              </div>
-              <div className="md:text-right flex md:block items-baseline gap-6 md:gap-0">
-                <div className="text-[14px] text-[#fafaf9] font-mono tabular-nums">
-                  {row.detail}
-                </div>
-                <div className="text-[12px] text-[#71717a] font-mono">
-                  {row.year}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
-
-        <div className="mt-16">
-          <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-[#71717a]">
-            <Award className="w-3.5 h-3.5" />
-            Honors & Certification
-          </div>
-          <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
-            {HONORS.map((h) => (
-              <li
-                key={h}
-                className="text-[14px] text-[#a1a1aa] flex items-start gap-3"
-              >
-                <span className="text-emerald-400 mt-2">·</span>
-                <span>{h}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>
@@ -727,12 +647,12 @@ function Certifications() {
           {CERTIFICATIONS.map((cert, i) => (
             <div
               key={cert.name}
-              className={`group relative rounded-2xl border border-[#1f1f23] hover:border-emerald-500/30 p-6 md:p-8 transition-colors bg-[#131316] overflow-hidden flex flex-col justify-between ${
+              className={`group relative rounded-2xl border border-[#2e2e36] hover:border-emerald-500/40 p-6 md:p-8 transition-colors bg-[#1f1f24] overflow-hidden flex flex-col justify-between ${
                 i === 0
                   ? "md:col-span-2 md:row-span-2"
                   : i === 3
-                  ? "md:col-span-3 md:row-span-2"
-                  : "md:col-span-1 md:row-span-1"
+                    ? "md:col-span-3 md:row-span-2"
+                    : "md:col-span-1 md:row-span-1"
               }`}
             >
               <div className="absolute inset-0 z-0 opacity-50 group-hover:opacity-100 transition-all duration-700">
@@ -741,7 +661,7 @@ function Certifications() {
                   alt={cert.name}
                   className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#131316] via-[#131316]/80 to-transparent transition-opacity duration-700 group-hover:opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1f1f24] via-[#1f1f24]/80 to-transparent transition-opacity duration-700 group-hover:opacity-90" />
               </div>
               <div className="relative z-10 flex flex-col justify-between h-full pointer-events-none">
                 <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-5">
@@ -749,7 +669,9 @@ function Certifications() {
                   {cert.issuer}
                 </div>
                 <div>
-                  <h3 className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 || i === 3 ? "text-[24px] md:text-3xl" : "text-[17px] md:text-xl"}`}>
+                  <h3
+                    className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 || i === 3 ? "text-[24px] md:text-3xl" : "text-[17px] md:text-xl"}`}
+                  >
                     {cert.name}
                   </h3>
                   <div className="mt-3 text-[12px] font-mono text-[#a1a1aa]">
