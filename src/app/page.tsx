@@ -12,6 +12,7 @@ import {
   Award,
   MapPin,
   ExternalLink,
+  Copy,
 } from "lucide-react";
 import CreatureTracker from "./components/CreatureTracker";
 
@@ -244,10 +245,11 @@ function Hero({
         </nav>
       </header>
 
+
       {/* Hero content - max-width discipline, no glowing CTA, no shimmer overlay. */}
       <motion.div
         style={{ opacity: heroOpacity, y: heroTranslateY }}
-        className="relative max-w-5xl mx-auto w-full px-6 flex-1 flex flex-col justify-end pb-16 md:pb-20 z-10"
+        className="relative max-w-5xl ml-8 w-full px-6 flex-1 flex flex-col justify-end pb-16 md:pb-20 z-10"
       >
         <div className="max-w-3xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400 mb-5">
@@ -281,6 +283,18 @@ function Hero({
           </div>
         </div>
       </motion.div>
+
+      {/* GitHub button — sits bottom-right, covers the AI watermark */}
+      <a
+        href="https://github.com/vijaykumaran2007"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-8 right-24 z-50 flex items-center justify-center w-14 h-14 bg-[#0a0a0b]/80 border border-[#2a2a30] hover:border-emerald-400 text-[#a1a1aa] hover:text-emerald-400 rounded-full backdrop-blur-md transition-all duration-200"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+        </svg>
+      </a>
     </section>
   );
 }
@@ -300,37 +314,38 @@ const Magnet = ({
   inactiveTransition?: string;
   className?: string;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref         = useRef<HTMLDivElement>(null);
+  const rafPending  = useRef(false);
   const [transform, setTransform] = useState("translate3d(0px, 0px, 0px)");
   const [transition, setTransition] = useState(inactiveTransition);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      const distanceX = e.clientX - centerX;
-      const distanceY = e.clientY - centerY;
-      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-      const threshold = Math.max(rect.width, rect.height) / 2 + padding;
-      if (distance < threshold) {
-        setTransition(activeTransition);
-        const moveX = distanceX / strength;
-        const moveY = distanceY / strength;
-        setTransform(`translate3d(${moveX}px, ${moveY}px, 0px)`);
-      } else {
-        setTransition(inactiveTransition);
-        setTransform("translate3d(0px, 0px, 0px)");
-      }
+      // Throttle to one getBoundingClientRect per animation frame
+      if (rafPending.current) return;
+      rafPending.current = true;
+      requestAnimationFrame(() => {
+        rafPending.current = false;
+        if (!ref.current) return;
+        const rect    = ref.current.getBoundingClientRect();
+        const centerX = rect.left + rect.width  / 2;
+        const centerY = rect.top  + rect.height / 2;
+        const distanceX = e.clientX - centerX;
+        const distanceY = e.clientY - centerY;
+        const distance  = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        const threshold = Math.max(rect.width, rect.height) / 2 + padding;
+        if (distance < threshold) {
+          setTransition(activeTransition);
+          setTransform(`translate3d(${distanceX / strength}px, ${distanceY / strength}px, 0px)`);
+        } else {
+          setTransition(inactiveTransition);
+          setTransform("translate3d(0px, 0px, 0px)");
+        }
+      });
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [padding, strength, activeTransition, inactiveTransition]);
 
   const handleMouseLeave = () => {
@@ -342,11 +357,7 @@ const Magnet = ({
     <div
       ref={ref}
       onMouseLeave={handleMouseLeave}
-      style={{
-        transform,
-        transition,
-        willChange: "transform",
-      }}
+      style={{ transform, transition, willChange: "transform" }}
       className={className}
     >
       {children}
@@ -394,7 +405,9 @@ function ProjectCard({
   total: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const img1Ref = useRef<HTMLImageElement>(null);
+  const img2Ref = useRef<HTMLImageElement>(null);
+  const img3Ref = useRef<HTMLImageElement>(null);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -404,15 +417,20 @@ function ProjectCard({
   const targetScale = 1 - (total - 1 - index) * 0.03;
   const scale = useTransform(scrollYProgress, [0, 1], [1, targetScale]);
 
+  // Direct DOM updates — no setState, no re-renders on every mousemove
   const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setMousePos({ x, y });
+    if (img1Ref.current) img1Ref.current.style.transform = `scale(1.08) translate3d(${x * -10}px, ${y * -10}px, 0)`;
+    if (img2Ref.current) img2Ref.current.style.transform = `scale(1.08) translate3d(${x * -14}px, ${y * -14}px, 0)`;
+    if (img3Ref.current) img3Ref.current.style.transform = `scale(1.08) translate3d(${x * -12}px, ${y * -12}px, 0)`;
   };
 
   const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
+    if (img1Ref.current) img1Ref.current.style.transform = "scale(1.08) translate3d(0px, 0px, 0)";
+    if (img2Ref.current) img2Ref.current.style.transform = "scale(1.08) translate3d(0px, 0px, 0)";
+    if (img3Ref.current) img3Ref.current.style.transform = "scale(1.08) translate3d(0px, 0px, 0)";
   };
 
   const themeGlows = [
@@ -510,13 +528,15 @@ function ProjectCard({
                 style={{ height: "clamp(90px, 12vw, 170px)" }}
               >
                 <img
+                  ref={img1Ref}
                   src={project.images[0]}
                   alt={`${project.title} 1`}
                   loading="lazy"
                   className="w-full h-full object-cover"
                   style={{
-                    transform: `scale(1.08) translate3d(${mousePos.x * -10}px, ${mousePos.y * -10}px, 0px)`,
+                    transform: "scale(1.08) translate3d(0px, 0px, 0)",
                     transition: "transform 0.15s ease-out",
+                    willChange: "transform",
                   }}
                 />
               </div>
@@ -525,26 +545,30 @@ function ProjectCard({
                 style={{ height: "clamp(120px, 18vw, 250px)" }}
               >
                 <img
+                  ref={img2Ref}
                   src={project.images[1]}
                   alt={`${project.title} 2`}
                   loading="lazy"
                   className="w-full h-full object-cover"
                   style={{
-                    transform: `scale(1.08) translate3d(${mousePos.x * -14}px, ${mousePos.y * -14}px, 0px)`,
+                    transform: "scale(1.08) translate3d(0px, 0px, 0)",
                     transition: "transform 0.15s ease-out",
+                    willChange: "transform",
                   }}
                 />
               </div>
             </div>
             <div className="flex-1 overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80">
               <img
+                ref={img3Ref}
                 src={project.images[2]}
                 alt={`${project.title} 3`}
                 loading="lazy"
                 className="w-full h-full object-cover"
                 style={{
-                  transform: `scale(1.08) translate3d(${mousePos.x * -12}px, ${mousePos.y * -12}px, 0px)`,
+                  transform: "scale(1.08) translate3d(0px, 0px, 0)",
                   transition: "transform 0.15s ease-out",
+                  willChange: "transform",
                 }}
               />
             </div>
@@ -609,7 +633,6 @@ function Skills() {
                 "Member of PSG iTech Software Development Cell",
                 "GDG PSG iTech active member",
                 "Coding Club member",
-                "Hackathon finalist",
               ].map((item, idx) => (
                 <div
                   key={idx}
@@ -722,26 +745,28 @@ function Contact() {
               className="group inline-flex items-center justify-between gap-4 bg-[#fafaf9] text-[#0a0a0b] rounded-full px-6 py-4 font-semibold text-[15px] hover:bg-emerald-400 hover:text-[#052e16] active:translate-y-[1px] transition-colors md:w-fit"
             >
               {copied ? "Copied to clipboard!" : "vijaykumaran2007@gmail.com"}
-              {!copied && <ArrowUpRight className="w-4 h-4 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />}
+              {!copied && <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
             </button>
-            <div className="flex items-center gap-4 mt-1">
+            <div className="flex flex-wrap items-center gap-4 mt-1">
               <a
                 href="https://github.com/vijaykumaran2007"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
+                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors font-medium text-[15px]"
               >
-                <GithubIcon className="w-6 h-6" />
+                <GithubIcon className="w-5 h-5" />
+                GitHub
               </a>
               <a
                 href="https://linkedin.com/in/vijay-adithiya"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="inline-flex items-center justify-center w-14 h-14 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors"
+                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors font-medium text-[15px]"
               >
-                <LinkedinIcon className="w-6 h-6" />
+                <LinkedinIcon className="w-5 h-5" />
+                LinkedIn
               </a>
             </div>
           </div>
@@ -754,39 +779,50 @@ function Contact() {
 /* ---------- FOOTER -------------------------------------------------------- */
 
 function Footer() {
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fit = () => {
+      const text = textRef.current;
+      const wrap = wrapRef.current;
+      if (!text || !wrap) return;
+      // Use a very large size so the text definitely overflows, then measure
+      text.style.fontSize = "500px";
+      text.style.width = "max-content";
+      const textWidth = text.scrollWidth;
+      text.style.width = "";
+      const style = window.getComputedStyle(wrap);
+      const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      const containerWidth = wrap.offsetWidth - paddingX;
+      if (textWidth > 0) {
+        text.style.fontSize = `${Math.floor(500 * containerWidth / textWidth)}px`;
+      }
+    };
+    // Wait for fonts before measuring so glyph widths are accurate
+    document.fonts.ready.then(fit);
+    const ro = new ResizeObserver(fit);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    return () => ro.disconnect();
+  }, []);
+
   return (
-    <footer className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
-      <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[12px] font-mono text-[#71717a]">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="w-3.5 h-3.5" />
-          <span>
-            &copy; {new Date().getFullYear()} Vijay Adithiya E. Coimbatore.
-          </span>
-        </div>
-        <div className="flex items-center gap-5">
-          <a
-            href="https://linkedin.com/in/vijay-adithiya"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[#fafaf9] transition-colors"
-          >
-            LinkedIn
-          </a>
-          <a
-            href="https://github.com/vijaykumaran2007"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[#fafaf9] transition-colors"
-          >
-            GitHub
-          </a>
-          <a
-            href="mailto:vijaykumaran2007@gmail.com"
-            className="hover:text-[#fafaf9] transition-colors"
-          >
-            Email
-          </a>
-        </div>
+    <footer className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]" style={{ overflowX: "clip" }}>
+
+      {/* Large display name — fills full width dynamically */}
+      <div ref={wrapRef} className="w-full px-6 pt-16 pb-4 select-none pointer-events-none">
+        <p
+          ref={textRef}
+          className="font-black text-[#fafaf9] leading-none whitespace-nowrap"
+          style={{
+            opacity: 0.4,
+            letterSpacing: "-0.03em",
+            display: "block",
+            width: "100%",
+          }}
+        >
+          Vijay Adithiya
+        </p>
       </div>
     </footer>
   );
