@@ -146,30 +146,35 @@ const CERTIFICATIONS: ReadonlyArray<{
   issuer: string;
   year: string;
   image: string;
+  category: string;
 }> = [
   {
     name: "Supervised Machine Learning: Regression & Classification",
     issuer: "DeepLearning.AI",
     year: "2024",
     image: "/images/mlpart1.png",
+    category: "Machine Learning",
   },
   {
     name: "Qualcomm AI Upskilling Program",
     issuer: "Qualcomm",
     year: "2024",
     image: "/images/qualcomm.png",
+    category: "AI",
   },
   {
     name: "Python Programming Foundation",
     issuer: "Onwingspan",
     year: "2023",
     image: "/images/pythoncertificate.png",
+    category: "Python",
   },
   {
     name: "Flutter & Dart: The Complete Development Guide",
     issuer: "Udemy",
     year: "2023",
     image: "/images/flutter.png",
+    category: "Mobile Development",
   },
 ];
 
@@ -249,23 +254,23 @@ function Hero({
       {/* Hero content - max-width discipline, no glowing CTA, no shimmer overlay. */}
       <motion.div
         style={{ opacity: heroOpacity, y: heroTranslateY }}
-        className="relative max-w-5xl ml-8 w-full px-6 flex-1 flex flex-col justify-end pb-16 md:pb-20 z-10"
+        className="relative max-w-5xl md:ml-8 w-full px-6 flex-1 flex flex-col justify-end pb-8 md:pb-20 z-10"
       >
         <div className="max-w-3xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400 mb-5">
             <MapPin className="inline-block w-3 h-3 -mt-0.5 mr-1.5 align-middle" />
             Coimbatore, India
           </p>
-          <h1 className="text-[clamp(2.5rem,5.4vw,5rem)] font-semibold tracking-[-0.02em] leading-[1.02] text-[#fafaf9] text-balance">
-            Building mobile apps and
+          <h1 className="text-[clamp(1.875rem,4vw,3.75rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#fafaf9] text-balance">
+            Building mobile apps,
             <span className="text-emerald-400"> machine learning </span>
-            systems, deliberately.
+            systems, and immersive web experiences.
           </h1>
-          <p className="mt-6 text-[17px] leading-[1.55] text-[#a1a1aa] max-w-xl">
+          <p className="mt-4 md:mt-6 text-[15px] md:text-[17px] leading-[1.6] text-[#fafaf9] max-w-xl">
             I&apos;m Vijay, a CS undergrad at PSG iTech. I build with Flutter
-            and Firebase by day, and train ML models by night.
+            and Firebase, explore machine learning, and create websites that feel alive.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-6 md:mt-9 flex flex-wrap items-center gap-3">
             <a
               href="#projects"
               className="inline-flex items-center gap-2 bg-[#fafaf9] text-[#0a0a0b] font-semibold text-sm px-5 py-3 rounded-full hover:bg-emerald-400 hover:text-[#052e16] active:translate-y-[1px] transition-colors"
@@ -581,6 +586,25 @@ function ProjectCard({
 
 /* ---------- SKILLS - semantic first, restrained ------------------------ */
 
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 20 },
+  },
+};
+
 function Skills() {
   return (
     <section
@@ -596,10 +620,17 @@ function Skills() {
               title="What I work with"
               intro="Tools I reach for daily. Comfortable across the full stack of an app - design, code, deploy."
             />
-            <div className="mt-14 grid grid-cols-2 gap-px bg-[#1f1f23] rounded-2xl overflow-hidden border border-[#1f1f23]">
+            <motion.div 
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-50px" }}
+              className="mt-14 grid grid-cols-2 gap-px bg-[#1f1f23] rounded-2xl overflow-hidden border border-[#1f1f23]"
+            >
               {SKILLS.map((group) => (
-                <div
+                <motion.div
                   key={group.group}
+                  variants={staggerItem}
                   className="bg-[#0a0a0b] p-6 md:p-7 flex flex-col gap-4"
                 >
                   <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
@@ -616,9 +647,9 @@ function Skills() {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           {/* EXPERIENCE */}
@@ -628,23 +659,30 @@ function Skills() {
               title="Where I've been"
               intro="Communities, teams, and active involvements."
             />
-            <div className="mt-14 flex flex-col gap-4">
+            <motion.div 
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-50px" }}
+              className="mt-14 flex flex-col gap-4"
+            >
               {[
                 "Member of PSG iTech Software Development Cell",
                 "GDG PSG iTech active member",
                 "Coding Club member",
               ].map((item, idx) => (
-                <div
+                <motion.div
                   key={idx}
+                  variants={staggerItem}
                   className="flex items-start gap-4 bg-[#131316] p-6 rounded-2xl border border-[#1f1f23] transition-colors hover:border-[#2a2a30]"
                 >
                   <div className="mt-1.5 text-emerald-400 text-[10px]">●</div>
                   <div className="text-[16px] font-medium text-[#fafaf9] leading-snug">
                     {item}
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -662,49 +700,64 @@ function Certifications() {
           <SectionHeader
             eyebrow="Certifications"
             title="Licenses & Certifications"
-            intro="Professional credentials and specialized training courses."
+            intro="Formal training and verified credentials demonstrating proficiency across machine learning, mobile development, and core programming paradigms."
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]"
+        >
           {CERTIFICATIONS.map((cert, i) => (
-            <div
+            <motion.div
               key={cert.name}
-              className={`group relative rounded-2xl border border-[#2e2e36] hover:border-emerald-500/40 p-6 md:p-8 transition-colors bg-[#1f1f24] overflow-hidden flex flex-col justify-between ${
+              variants={staggerItem}
+              className={`group relative rounded-2xl border border-[#2e2e36] hover:border-emerald-500/40 p-6 md:p-8 transition-all duration-500 hover:scale-[1.02] bg-[#141417] overflow-hidden flex flex-col justify-between ${
                 i === 0
                   ? "md:col-span-2 md:row-span-2"
                   : i === 3
-                    ? "md:col-span-3 md:row-span-2"
+                    ? "md:col-span-3 md:row-span-1"
                     : "md:col-span-1 md:row-span-1"
               }`}
             >
-              <div className="absolute inset-0 z-0 opacity-50 group-hover:opacity-100 transition-all duration-700">
+              <div className="absolute inset-0 z-0 opacity-15 group-hover:opacity-25 transition-all duration-700 blur-[2px] group-hover:blur-sm">
                 <img
                   src={cert.image}
                   alt={cert.name}
                   className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1f1f24] via-[#1f1f24]/80 to-transparent transition-opacity duration-700 group-hover:opacity-90" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-[#141417]/40 transition-opacity duration-700" />
               </div>
+              
               <div className="relative z-10 flex flex-col justify-between h-full pointer-events-none">
-                <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-5">
-                  <Award className="w-3.5 h-3.5" />
-                  {cert.issuer}
+                <div className="flex items-center justify-between gap-4 mb-5">
+                  <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
+                    <Award className="w-3.5 h-3.5" />
+                    {cert.issuer}
+                  </div>
+                  <div className="text-[10px] font-semibold tracking-wider uppercase bg-white/5 border border-white/10 text-[#a1a1aa] px-2.5 py-1 rounded-full backdrop-blur-md">
+                    {cert.category}
+                  </div>
                 </div>
+                
                 <div>
                   <h3
-                    className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 || i === 3 ? "text-[24px] md:text-3xl" : "text-[17px] md:text-xl"}`}
+                    className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 ? "text-[28px] md:text-4xl" : "text-[20px] md:text-2xl"}`}
                   >
                     {cert.name}
                   </h3>
-                  <div className="mt-3 text-[12px] font-mono text-[#a1a1aa]">
-                    Issued {cert.year}
+                  <div className="mt-4 text-[13px] font-medium text-[#a1a1aa] flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                    Completed {cert.year}
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -724,10 +777,9 @@ function Contact() {
   return (
     <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
       <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
-        <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-12 items-end">
+        <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-12 md:items-center">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400 mb-5">
-              <Cpu className="inline-block w-3 h-3 -mt-0.5 mr-1.5 align-middle" />
               Contact
             </p>
             <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#fafaf9] text-balance">
