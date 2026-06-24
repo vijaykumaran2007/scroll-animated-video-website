@@ -191,8 +191,10 @@ export default function Home() {
       ref={containerRef}
       className="relative min-h-screen bg-[#0a0a0b] text-[#fafaf9] selection:bg-emerald-500 selection:text-emerald-950"
     >
-      <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} />
-      <Skills />
+      <div className="relative w-full">
+        <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} />
+        <Skills />
+      </div>
       <Projects />
       <Certifications />
       <Contact />
@@ -376,7 +378,7 @@ function Projects() {
   return (
     <section
       id="projects"
-      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]"
+      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] transform-gpu"
     >
       <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
         <SectionHeader
@@ -601,7 +603,7 @@ const staggerItem = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring", stiffness: 100, damping: 20 },
+    transition: { type: "spring" as const, stiffness: 100, damping: 20 },
   },
 };
 

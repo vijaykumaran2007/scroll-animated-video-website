@@ -28,8 +28,8 @@ export default function CreatureTracker() {
   const canvasRef       = useRef<HTMLCanvasElement>(null);
   const videoRef        = useRef<HTMLVideoElement | null>(null);
   const framesRef       = useRef<ImageBitmap[]>([]);
-  const targetIdxRef    = useRef(TOTAL_FRAMES / 2);
-  const currentIdxRef   = useRef(TOTAL_FRAMES / 2);
+  const targetIdxRef    = useRef(TOTAL_FRAMES * 0.75);
+  const currentIdxRef   = useRef(TOTAL_FRAMES * 0.75);
   const lastDrawnIdxRef = useRef(-1);   // skip redraw when frame unchanged
   const rafRef          = useRef<number | null>(null);
   const visibleRef      = useRef(true); // paused via IntersectionObserver
