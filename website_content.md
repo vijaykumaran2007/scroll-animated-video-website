@@ -30,7 +30,7 @@
 * **Title:** Surrendraw
 * **Category:** Web (React / FastAPI)
 * **Stack:** React, Python, FastAPI, OpenCV, AI Grading
-* **Blurb:** SaaS platform for Engineering Graphics education allowing digital drawings and instant AI-powered feedback on structural similarity and correctness, simplifying college assessments with automated grading.
+* **Blurb:** A platform for Engineering Graphics education allowing digital drawings and instant AI-powered feedback on structural similarity and correctness, simplifying college assessments with automated grading.
 * **Link:** View
 
 ### 03

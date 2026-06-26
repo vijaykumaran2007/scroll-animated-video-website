@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ── CONFIG ────────────────────────────────────────────────
-const VIDEO_SRC =
-  "/Firefly A small, round, fluffy orange creature with huge white eyes and a tiny black nose stands com.mp4";
+const VIDEO_SRC = "/creature.mp4";
 const VIDEO_DURATION = 5.042;
 const LERP_FACTOR    = 0.12;
 const TOTAL_FRAMES   = 121; // 24fps × 5s
@@ -77,13 +76,26 @@ export default function CreatureTracker() {
     const ctx       = offscreen.getContext("2d")!;
 
     const extractFrames = async () => {
-      await new Promise<void>((resolve) => {
-        video.addEventListener("loadedmetadata", () => resolve(), { once: true });
-        video.load();
-      });
+      try {
+        // Fetch video as blob to ensure it's fully in memory before seeking.
+        // This solves issues with byte-range requests and seeking on static hosts.
+        const response = await fetch(VIDEO_SRC);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        video.src = blobUrl;
 
-      offscreen.width  = video.videoWidth;
-      offscreen.height = video.videoHeight;
+        await new Promise<void>((resolve, reject) => {
+          video.addEventListener("loadedmetadata", () => resolve(), { once: true });
+          video.addEventListener("error", (e) => {
+            console.error("Video load error:", video.error);
+            resolve();
+          }, { once: true });
+          video.load();
+        });
+
+        offscreen.width  = video.videoWidth;
+        offscreen.height = video.videoHeight;
 
       const captured: ImageBitmap[] = [];
 
@@ -112,6 +124,9 @@ export default function CreatureTracker() {
       if (!cancelled) {
         setProgress(100);
         setReady(true);
+      }
+      } catch (err) {
+        console.error("Frame extraction error:", err);
       }
     };
 
@@ -177,13 +192,30 @@ export default function CreatureTracker() {
       const frame = framesRef.current[safe];
       if (!frame) return;
 
-      const scaleX = canvas.width  / frame.width;
-      const scaleY = canvas.height / frame.height;
-      const scale  = Math.max(scaleX, scaleY);
-      const w = frame.width  * scale;
-      const h = frame.height * scale;
-      const x = (canvas.width  - w) / 2;
-      const y = (canvas.height - h) / 2;
+      let scaleX = canvas.width  / frame.width;
+      let scaleY = canvas.height / frame.height;
+      let scale  = Math.max(scaleX, scaleY);
+      
+      let x, y, w, h;
+      
+      if (window.innerWidth <= 768) {
+        // Zoom in by 1.5x so the video is taller than the screen
+        scale *= 1.5;
+        w = frame.width * scale;
+        h = frame.height * scale;
+        
+        // Center horizontally on the creature (~66% mark)
+        x = (canvas.width / 2) - (w * GAZE_CENTER);
+        
+        // Anchor the video to the very bottom of the screen.
+        // Because it's scaled 1.5x, this naturally pushes the vertically-centered creature up to the top 25% of the screen.
+        y = canvas.height - h;
+      } else {
+        w = frame.width * scale;
+        h = frame.height * scale;
+        x = (canvas.width  - w) / 2;
+        y = (canvas.height - h) / 2;
+      }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(frame, x, y, w, h);
@@ -230,17 +262,19 @@ export default function CreatureTracker() {
       gyroActiveRef.current = true;
     };
 
-    const attachGyro = () =>
+    const attachGyro = () => {
       window.addEventListener("deviceorientation", onOrientation, { passive: true });
+      window.addEventListener("deviceorientationabsolute", onOrientation as any, { passive: true });
+    };
 
     const tryGyro = async () => {
       if (!isTouchDevice()) return;
-      const DOE = DeviceOrientationEvent as unknown as {
-        requestPermission?: () => Promise<string>;
-      };
-      if (typeof DOE.requestPermission === "function") {
+      
+      // Check for iOS 13+ permission API
+      if (typeof window !== "undefined" && typeof (window as any).DeviceOrientationEvent !== "undefined" && typeof (window as any).DeviceOrientationEvent.requestPermission === "function") {
         setNeedsGyroPermission(true);
       } else {
+        // Unconditionally attach for Android and older browsers
         attachGyro();
       }
     };
@@ -254,18 +288,21 @@ export default function CreatureTracker() {
       window.removeEventListener("mousemove", onMouse);
       window.removeEventListener("touchmove", onTouch);
       window.removeEventListener("deviceorientation", onOrientation);
+      window.removeEventListener("deviceorientationabsolute", onOrientation as any);
     };
   }, []);
 
   const requestGyroPermission = async () => {
-    const DOE = DeviceOrientationEvent as unknown as {
-      requestPermission?: () => Promise<string>;
-    };
-    if (typeof DOE.requestPermission === "function") {
-      const result = await DOE.requestPermission();
-      if (result === "granted") {
-        (window as any).__attachGyro?.();
-        setNeedsGyroPermission(false);
+    if (typeof window !== "undefined" && typeof window.DeviceOrientationEvent !== "undefined") {
+      const DOE = window.DeviceOrientationEvent as unknown as {
+        requestPermission?: () => Promise<string>;
+      };
+      if (typeof DOE.requestPermission === "function") {
+        const result = await DOE.requestPermission();
+        if (result === "granted") {
+          (window as any).__attachGyro?.();
+          setNeedsGyroPermission(false);
+        }
       }
     }
   };

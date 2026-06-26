@@ -1,7 +1,8 @@
 "use client";
 
-import { useScroll, useTransform, motion } from "framer-motion";
+import { useScroll, useTransform, motion, AnimatePresence, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 import {
   ArrowUpRight,
   Cpu,
@@ -15,6 +16,7 @@ import {
   Copy,
 } from "lucide-react";
 import CreatureTracker from "./components/CreatureTracker";
+import WorkGallery from "./components/WorkGallery";
 
 /* Inline brand icons. This version of lucide-react does not expose
    GitHub / LinkedIn names, so we hand-roll SVG paths that match the
@@ -68,7 +70,7 @@ const PROJECTS: ReadonlyArray<Project> = [
     num: "01",
     title: "Aditya Paper Works",
     blurb:
-      "Marketing site for a paper-products manufacturer, with custom scroll-driven timelines and responsive layout from scratch.",
+      "Marketing site for a paper-products manufacturer featuring custom scroll-driven timelines and a fully responsive layout built from scratch.",
     url: "https://adityapaperworks.vercel.app/",
     stackLabel: "HTML / GSAP",
     category: "Web",
@@ -85,7 +87,7 @@ const PROJECTS: ReadonlyArray<Project> = [
     num: "02",
     title: "Surrendraw",
     blurb:
-      "SaaS platform for Engineering Graphics education allowing digital drawings and instant AI-powered feedback on structural similarity and correctness, simplifying college assessments with automated grading.",
+      "A platform for Engineering Graphics education that enables digital drawings and instant AI-powered feedback on structural accuracy, simplifying college assessments through automated grading.",
     url: "https://surrenddraw.web.app/",
     stackLabel: "React / FastAPI",
     category: "Web",
@@ -101,7 +103,7 @@ const PROJECTS: ReadonlyArray<Project> = [
     num: "03",
     title: "Sentinel3",
     blurb:
-      "AI EHR integrating ML diagnostics, outbreak mapping, and clinical decision support. Fuses 3 medical analysis layers for non-invasive insights. 2nd Runner-up at international hackathon.",
+      "An AI-powered EHR integrating ML diagnostics, outbreak mapping, and clinical decision support. Combines three medical analysis layers for non-invasive insights. 2nd Runner-up at an international hackathon.",
     url: "https://sentinel3ai.vercel.app/",
     stackLabel: "Agentic AI / EHR",
     category: "Web",
@@ -144,35 +146,30 @@ const SKILLS: ReadonlyArray<{ group: string; items: string[] }> = [
 const CERTIFICATIONS: ReadonlyArray<{
   name: string;
   issuer: string;
-  year: string;
   image: string;
   category: string;
 }> = [
   {
     name: "Supervised Machine Learning: Regression & Classification",
     issuer: "DeepLearning.AI",
-    year: "2024",
     image: "/images/mlpart1.png",
     category: "Machine Learning",
   },
   {
     name: "Qualcomm AI Upskilling Program",
     issuer: "Qualcomm",
-    year: "2024",
     image: "/images/qualcomm.png",
     category: "AI",
   },
   {
     name: "Python Programming Foundation",
     issuer: "Onwingspan",
-    year: "2023",
     image: "/images/pythoncertificate.png",
     category: "Python",
   },
   {
     name: "Flutter & Dart: The Complete Development Guide",
     issuer: "Udemy",
-    year: "2023",
     image: "/images/flutter.png",
     category: "Mobile Development",
   },
@@ -197,6 +194,7 @@ export default function Home() {
       </div>
       <Projects />
       <Certifications />
+      <WorkGallery />
       <Contact />
       <Footer />
     </div>
@@ -223,14 +221,14 @@ function Hero({
       />
 
       {/* Floating navigation - no status dot, no monochromatic eyebrow chip. */}
-      <header className="fixed top-5 left-5 right-5 max-w-5xl mx-auto h-14 flex items-center justify-between z-50 bg-[#0a0a0b]/75 border border-[#1f1f23] rounded-full px-5 backdrop-blur-xl">
+      <header className="fixed top-5 left-5 right-5 max-w-5xl mx-auto h-14 hidden md:flex items-center justify-between z-50 bg-[#0a0a0b]/75 border border-[#1f1f23] rounded-full px-5 backdrop-blur-xl">
         <a
           href="#top"
           className="font-semibold text-base tracking-[-0.01em] text-[#fafaf9] hover:text-emerald-400 transition-colors"
         >
           Vijay Adithiya
         </a>
-        <nav className="flex items-center gap-7 text-[13px] font-medium">
+        <nav className="flex items-center gap-4 sm:gap-7 text-[13px] font-medium">
           <a
             href="#projects"
             className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors"
@@ -239,13 +237,13 @@ function Hero({
           </a>
           <a
             href="#about"
-            className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors hidden sm:inline"
+            className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors"
           >
             About
           </a>
           <a
             href="mailto:vijaykumaran2007@gmail.com"
-            className="text-[#fafaf9] hover:text-emerald-400 transition-colors"
+            className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors"
           >
             Contact
           </a>
@@ -270,7 +268,7 @@ function Hero({
           </h1>
           <p className="mt-4 md:mt-6 text-[15px] md:text-[17px] leading-[1.6] text-[#fafaf9] max-w-xl">
             I&apos;m Vijay, a CS undergrad at PSG iTech. I build with Flutter
-            and Firebase, explore machine learning, and create websites that feel alive.
+            and Firebase, dive deep into machine learning, and craft websites that feel alive.
           </p>
           <div className="mt-6 md:mt-9 flex flex-wrap items-center gap-3">
             <a
@@ -296,7 +294,7 @@ function Hero({
         href="https://github.com/vijaykumaran2007"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 right-24 z-50 flex items-center justify-center w-14 h-14 bg-[#0a0a0b]/80 border border-[#2a2a30] hover:border-emerald-400 text-[#a1a1aa] hover:text-emerald-400 rounded-full backdrop-blur-md transition-all duration-200"
+        className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#0a0a0b]/80 border border-[#2a2a30] hover:border-emerald-400 text-[#a1a1aa] hover:text-emerald-400 rounded-full backdrop-blur-md transition-all duration-200"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
@@ -384,7 +382,7 @@ function Projects() {
         <SectionHeader
           eyebrow="Projects"
           title="Selected work"
-          intro="Five projects across mobile, web, and ML. Each one started as a problem worth solving."
+          intro="Three projects across mobile, web, and ML — each one started as a problem worth solving."
         />
 
         <div className="mt-16 flex flex-col items-center mt-[15vh]">
@@ -531,15 +529,16 @@ function ProjectCard({
               style={{ width: "40%" }}
             >
               <div
-                className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
+                className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
                 style={{ height: "clamp(90px, 12vw, 170px)" }}
               >
-                <img
+                <Image
                   ref={img1Ref}
                   src={project.images[0]}
                   alt={`${project.title} 1`}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover"
                   style={{
                     transform: "scale(1.08) translate3d(0px, 0px, 0)",
                     transition: "transform 0.15s ease-out",
@@ -548,15 +547,16 @@ function ProjectCard({
                 />
               </div>
               <div
-                className="overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
+                className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
                 style={{ height: "clamp(120px, 18vw, 250px)" }}
               >
-                <img
+                <Image
                   ref={img2Ref}
                   src={project.images[1]}
                   alt={`${project.title} 2`}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover"
                   style={{
                     transform: "scale(1.08) translate3d(0px, 0px, 0)",
                     transition: "transform 0.15s ease-out",
@@ -565,13 +565,14 @@ function ProjectCard({
                 />
               </div>
             </div>
-            <div className="flex-1 overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80">
-              <img
+            <div className="relative flex-1 overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80">
+              <Image
                 ref={img3Ref}
                 src={project.images[2]}
                 alt={`${project.title} 3`}
-                loading="lazy"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover"
                 style={{
                   transform: "scale(1.08) translate3d(0px, 0px, 0)",
                   transition: "transform 0.15s ease-out",
@@ -620,7 +621,7 @@ function Skills() {
             <SectionHeader
               eyebrow="About"
               title="What I work with"
-              intro="Tools I reach for daily. Comfortable across the full stack of an app - design, code, deploy."
+              intro="Tools I reach for daily — comfortable across the full stack: design, code, and deploy."
             />
             <motion.div 
               variants={staggerContainer}
@@ -658,8 +659,8 @@ function Skills() {
           <div>
             <SectionHeader
               eyebrow="Experience"
-              title="Where I've been"
-              intro="Communities, teams, and active involvements."
+              title="Where I&apos;ve been"
+              intro="Communities, teams, and active involvement."
             />
             <motion.div 
               variants={staggerContainer}
@@ -694,6 +695,108 @@ function Skills() {
 
 /* ---------- CERTIFICATIONS ------------------------------------------------ */
 
+function CertCard({ cert, i }: { cert: typeof CERTIFICATIONS[number]; i: number }) {
+  const [hovered, setHovered] = useState(false);
+  const [showImg, setShowImg] = useState(false);
+
+  // Slight delay so the enter animation resets properly on re-hover
+  const handleMouseEnter = () => {
+    setShowImg(false);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setShowImg(true));
+    });
+    setHovered(true);
+  };
+  const handleMouseLeave = () => {
+    setHovered(false);
+    setShowImg(false);
+  };
+
+  return (
+    <motion.div
+      key={cert.name}
+      variants={staggerItem}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`group relative rounded-2xl border transition-all duration-500 bg-[#141417] overflow-hidden flex flex-col justify-between cursor-pointer ${
+        hovered ? "border-emerald-500/60" : "border-[#2e2e36]"
+      } ${
+        i === 0
+          ? "md:col-span-2 md:row-span-2"
+          : i === 3
+            ? "md:col-span-3 md:row-span-1"
+            : "md:col-span-1 md:row-span-1"
+      }`}
+    >
+      {/* Subtle ambient background image */}
+      <div className="absolute inset-0 z-0 opacity-15 transition-opacity duration-700 blur-[2px]">
+        <Image
+          src={cert.image}
+          alt={cert.name}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover grayscale"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-[#141417]/40" />
+      </div>
+
+      {/* Certificate reveal overlay on hover */}
+      <AnimatePresence>
+        {hovered && showImg && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.88, filter: "blur(8px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.96, filter: "blur(4px)" }}
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-0 z-20 rounded-2xl overflow-hidden"
+          >
+            <Image
+              src={cert.image}
+              alt={`${cert.name} certificate`}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+            {/* Dark gradient at bottom so text remains readable */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            {/* Badge overlay at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
+              <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-2">
+                <Award className="w-3.5 h-3.5" />
+                {cert.issuer}
+              </div>
+              <p className="text-white font-semibold text-lg leading-snug">{cert.name}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Normal card content */}
+      <div className="relative z-10 flex flex-col justify-between h-full p-6 md:p-8">
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
+            <Award className="w-3.5 h-3.5" />
+            {cert.issuer}
+          </div>
+          <div className="text-[10px] font-semibold tracking-wider uppercase bg-white/5 border border-white/10 text-[#a1a1aa] px-2.5 py-1 rounded-full backdrop-blur-md">
+            {cert.category}
+          </div>
+        </div>
+
+        <div>
+          <h3
+            className={`font-semibold text-[#fafaf9] leading-snug transition-colors ${
+              i === 0 ? "text-[28px] md:text-4xl" : "text-[20px] md:text-2xl"
+            }`}
+          >
+            {cert.name}
+          </h3>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function Certifications() {
   return (
     <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
@@ -701,12 +804,12 @@ function Certifications() {
         <div className="max-w-5xl mx-auto mb-14">
           <SectionHeader
             eyebrow="Certifications"
-            title="Licenses & Certifications"
-            intro="Formal training and verified credentials demonstrating proficiency across machine learning, mobile development, and core programming paradigms."
+            title="Licenses &amp; Certifications"
+            intro="Formal training and verified credentials demonstrating proficiency in machine learning, mobile development, and core programming paradigms."
           />
         </div>
 
-        <motion.div 
+        <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="show"
@@ -714,50 +817,7 @@ function Certifications() {
           className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]"
         >
           {CERTIFICATIONS.map((cert, i) => (
-            <motion.div
-              key={cert.name}
-              variants={staggerItem}
-              className={`group relative rounded-2xl border border-[#2e2e36] hover:border-emerald-500/40 p-6 md:p-8 transition-all duration-500 hover:scale-[1.02] bg-[#141417] overflow-hidden flex flex-col justify-between ${
-                i === 0
-                  ? "md:col-span-2 md:row-span-2"
-                  : i === 3
-                    ? "md:col-span-3 md:row-span-1"
-                    : "md:col-span-1 md:row-span-1"
-              }`}
-            >
-              <div className="absolute inset-0 z-0 opacity-15 group-hover:opacity-25 transition-all duration-700 blur-[2px] group-hover:blur-sm">
-                <img
-                  src={cert.image}
-                  alt={cert.name}
-                  className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-[#141417]/40 transition-opacity duration-700" />
-              </div>
-              
-              <div className="relative z-10 flex flex-col justify-between h-full pointer-events-none">
-                <div className="flex items-center justify-between gap-4 mb-5">
-                  <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
-                    <Award className="w-3.5 h-3.5" />
-                    {cert.issuer}
-                  </div>
-                  <div className="text-[10px] font-semibold tracking-wider uppercase bg-white/5 border border-white/10 text-[#a1a1aa] px-2.5 py-1 rounded-full backdrop-blur-md">
-                    {cert.category}
-                  </div>
-                </div>
-                
-                <div>
-                  <h3
-                    className={`font-semibold text-[#fafaf9] leading-snug group-hover:text-emerald-400 transition-colors ${i === 0 ? "text-[28px] md:text-4xl" : "text-[20px] md:text-2xl"}`}
-                  >
-                    {cert.name}
-                  </h3>
-                  <div className="mt-4 text-[13px] font-medium text-[#a1a1aa] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
-                    Completed {cert.year}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <CertCard key={cert.name} cert={cert} i={i} />
           ))}
         </motion.div>
       </div>
@@ -785,11 +845,11 @@ function Contact() {
               Contact
             </p>
             <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#fafaf9] text-balance">
-              Have a project, internship, or just want to talk Flutter?
+              Have a project, an internship opportunity, or just want to talk Flutter?
             </h2>
             <p className="mt-5 text-[16px] leading-[1.6] text-[#a1a1aa] max-w-md">
               I&apos;m open to internships, hackathon teams, and interesting
-              collaborators. Email is the fastest way to reach me.
+              collaborations. Email is the fastest way to reach me.
             </p>
           </div>
 

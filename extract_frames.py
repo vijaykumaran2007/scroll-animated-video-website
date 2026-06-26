@@ -16,7 +16,7 @@ import sys
 # ── CONFIG ────────────────────────────────────────────────
 VIDEO_PATH   = "public/Firefly A small, round, fluffy orange creature with huge white eyes and a tiny black nose stands com.mp4"
 OUTPUT_DIR   = "public/frames"
-WEBP_QUALITY  = 85          # 0-100, higher = better quality
+WEBP_QUALITY  = 95          # 0-100, higher = better quality
 TARGET_FPS    = 24          # matches source video native FPS
 RESIZE_WIDTH  = None        # no resize — keep original resolution
 RESIZE_HEIGHT = None        # no resize — keep original resolution
