@@ -13,6 +13,11 @@ const BITMAP_SCALE   = 0.75;
 // at the cursor when hovering directly over it.
 const GAZE_CENTER = 0.66;
 
+const isTouchDevice = () => {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(pointer: coarse)").matches;
+};
+
 // Curtain reveal — five full-height vertical columns sliding upward with a
 // gentle left-to-right stagger. Slightly slow so the lift feels cinematic.
 const CURTAIN_SECTIONS = [
@@ -93,6 +98,31 @@ export default function CreatureTracker() {
           }, { once: true });
           video.load();
         });
+
+        if (isTouchDevice()) {
+          const captured: ImageBitmap[] = new Array(TOTAL_FRAMES);
+          let loadedCount = 0;
+          
+          const promises = Array.from({ length: TOTAL_FRAMES }).map(async (_, i) => {
+            if (cancelled) return;
+            const imgStr = i.toString().padStart(4, '0');
+            const res = await fetch(`/frames_mobile/frame_${imgStr}.webp`);
+            const blob = await res.blob();
+            const bitmap = await createImageBitmap(blob);
+            captured[i] = bitmap;
+            
+            loadedCount++;
+            if (!cancelled) setProgress(Math.round((loadedCount / TOTAL_FRAMES) * 100));
+          });
+
+          await Promise.all(promises);
+          
+          if (cancelled) return;
+          framesRef.current = captured;
+          setProgress(100);
+          setReady(true);
+          return;
+        }
 
         offscreen.width  = video.videoWidth;
         offscreen.height = video.videoHeight;
@@ -198,17 +228,20 @@ export default function CreatureTracker() {
       
       let x, y, w, h;
       
-      if (window.innerWidth <= 768) {
-        // Zoom in by 1.5x so the video is taller than the screen
+      if (isTouchDevice()) {
+        // Mobile layout: The frame is already cropped to portrait (centered on the creature).
+        // Zoom in slightly and anchor it to the bottom.
         scale *= 1.5;
         w = frame.width * scale;
         h = frame.height * scale;
-        
-        // Center horizontally on the creature (~66% mark)
+        x = (canvas.width - w) / 2; // Perfectly centered
+        y = canvas.height - h;
+      } else if (window.innerWidth <= 768) {
+        // Responsive desktop view (narrow window but not a touch device)
+        scale *= 1.5;
+        w = frame.width * scale;
+        h = frame.height * scale;
         x = (canvas.width / 2) - (w * GAZE_CENTER);
-        
-        // Anchor the video to the very bottom of the screen.
-        // Because it's scaled 1.5x, this naturally pushes the vertically-centered creature up to the top 25% of the screen.
         y = canvas.height - h;
       } else {
         w = frame.width * scale;
@@ -236,7 +269,6 @@ export default function CreatureTracker() {
   const gyroActiveRef = useRef(false);
 
   useEffect(() => {
-    const isTouchDevice = () => window.matchMedia("(pointer: coarse)").matches;
 
     const updateTarget = (ratio: number) => {
       const remapped =
