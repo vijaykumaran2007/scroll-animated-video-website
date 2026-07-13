@@ -1,15 +1,12 @@
 "use client";
 
-import { useScroll, useTransform, motion, AnimatePresence, useInView } from "framer-motion";
+import { useScroll, useTransform, motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import {
   ArrowUpRight,
-  Cpu,
   Code2,
-  Layers,
   Mail,
-  GraduationCap,
   Award,
   MapPin,
   ExternalLink,
@@ -296,79 +293,13 @@ function Hero({
         rel="noopener noreferrer"
         className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#0a0a0b]/80 border border-[#2a2a30] hover:border-emerald-400 text-[#a1a1aa] hover:text-emerald-400 rounded-full backdrop-blur-md transition-all duration-200"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-        </svg>
+        <GithubIcon className="w-[22px] h-[22px] stroke-[2px]" />
       </a>
     </section>
   );
 }
 
-const Magnet = ({
-  children,
-  padding = 150,
-  strength = 3,
-  activeTransition = "transform 0.3s ease-out",
-  inactiveTransition = "transform 0.6s ease-in-out",
-  className = "w-full flex justify-center",
-}: {
-  children: React.ReactNode;
-  padding?: number;
-  strength?: number;
-  activeTransition?: string;
-  inactiveTransition?: string;
-  className?: string;
-}) => {
-  const ref         = useRef<HTMLDivElement>(null);
-  const rafPending  = useRef(false);
-  const [transform, setTransform] = useState("translate3d(0px, 0px, 0px)");
-  const [transition, setTransition] = useState(inactiveTransition);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // Throttle to one getBoundingClientRect per animation frame
-      if (rafPending.current) return;
-      rafPending.current = true;
-      requestAnimationFrame(() => {
-        rafPending.current = false;
-        if (!ref.current) return;
-        const rect    = ref.current.getBoundingClientRect();
-        const centerX = rect.left + rect.width  / 2;
-        const centerY = rect.top  + rect.height / 2;
-        const distanceX = e.clientX - centerX;
-        const distanceY = e.clientY - centerY;
-        const distance  = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-        const threshold = Math.max(rect.width, rect.height) / 2 + padding;
-        if (distance < threshold) {
-          setTransition(activeTransition);
-          setTransform(`translate3d(${distanceX / strength}px, ${distanceY / strength}px, 0px)`);
-        } else {
-          setTransition(inactiveTransition);
-          setTransform("translate3d(0px, 0px, 0px)");
-        }
-      });
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [padding, strength, activeTransition, inactiveTransition]);
-
-  const handleMouseLeave = () => {
-    setTransition(inactiveTransition);
-    setTransform("translate3d(0px, 0px, 0px)");
-  };
-
-  return (
-    <div
-      ref={ref}
-      onMouseLeave={handleMouseLeave}
-      style={{ transform, transition, willChange: "transform" }}
-      className={className}
-    >
-      {children}
-    </div>
-  );
-};
 
 /* ---------- PROJECTS ------------------------------------------------------ */
 
@@ -499,21 +430,15 @@ function ProjectCard({
               </p>
             </div>
 
-            <Magnet
-              padding={40}
-              strength={4}
-              className="w-fit flex-shrink-0 hidden md:flex"
-            >
               <a
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-full border border-[#2a2a30] px-5 py-2.5 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 hover:border-white transition-all duration-300 w-fit"
+                className="hidden md:flex items-center gap-2 rounded-full border border-[#2a2a30] px-5 py-2.5 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 hover:border-white hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 w-fit flex-shrink-0"
               >
                 View
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
-            </Magnet>
           </div>
 
           <a
@@ -696,31 +621,11 @@ function Skills() {
 /* ---------- CERTIFICATIONS ------------------------------------------------ */
 
 function CertCard({ cert, i }: { cert: typeof CERTIFICATIONS[number]; i: number }) {
-  const [hovered, setHovered] = useState(false);
-  const [showImg, setShowImg] = useState(false);
-
-  // Slight delay so the enter animation resets properly on re-hover
-  const handleMouseEnter = () => {
-    setShowImg(false);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setShowImg(true));
-    });
-    setHovered(true);
-  };
-  const handleMouseLeave = () => {
-    setHovered(false);
-    setShowImg(false);
-  };
-
   return (
     <motion.div
       key={cert.name}
       variants={staggerItem}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      className={`group relative rounded-2xl border transition-all duration-500 bg-[#141417] overflow-hidden flex flex-col justify-between cursor-pointer ${
-        hovered ? "border-emerald-500/60" : "border-[#2e2e36]"
-      } ${
+      className={`group relative rounded-2xl border transition-all duration-500 bg-[#141417] overflow-hidden flex flex-col justify-between cursor-pointer border-[#2e2e36] hover:border-emerald-500/60 ${
         i === 0
           ? "md:col-span-2 md:row-span-2"
           : i === 3
@@ -740,36 +645,24 @@ function CertCard({ cert, i }: { cert: typeof CERTIFICATIONS[number]; i: number 
         <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-[#141417]/40" />
       </div>
 
-      {/* Certificate reveal overlay on hover */}
-      <AnimatePresence>
-        {hovered && showImg && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.88, filter: "blur(8px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.96, filter: "blur(4px)" }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute inset-0 z-20 rounded-2xl overflow-hidden"
-          >
-            <Image
-              src={cert.image}
-              alt={`${cert.name} certificate`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-            />
-            {/* Dark gradient at bottom so text remains readable */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-            {/* Badge overlay at bottom */}
-            <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
-              <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-2">
-                <Award className="w-3.5 h-3.5" />
-                {cert.issuer}
-              </div>
-              <p className="text-white font-semibold text-lg leading-snug">{cert.name}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Certificate reveal overlay on hover - PURE CSS */}
+      <div className="absolute inset-0 z-20 rounded-2xl overflow-hidden opacity-0 scale-95 blur-sm group-hover:opacity-100 group-hover:scale-100 group-hover:blur-0 transition-all duration-500 ease-out pointer-events-none">
+        <Image
+          src={cert.image}
+          alt={`${cert.name} certificate`}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
+          <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-2">
+            <Award className="w-3.5 h-3.5" />
+            {cert.issuer}
+          </div>
+          <p className="text-white font-semibold text-lg leading-snug">{cert.name}</p>
+        </div>
+      </div>
 
       {/* Normal card content */}
       <div className="relative z-10 flex flex-col justify-between h-full p-6 md:p-8">
@@ -893,51 +786,13 @@ function Contact() {
 /* ---------- FOOTER -------------------------------------------------------- */
 
 function Footer() {
-  const textRef = useRef<HTMLParagraphElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fit = () => {
-      const text = textRef.current;
-      const wrap = wrapRef.current;
-      if (!text || !wrap) return;
-      // Use a very large size so the text definitely overflows, then measure
-      text.style.fontSize = "500px";
-      text.style.width = "max-content";
-      const textWidth = text.scrollWidth;
-      text.style.width = "";
-      const style = window.getComputedStyle(wrap);
-      const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-      const containerWidth = wrap.offsetWidth - paddingX;
-      if (textWidth > 0) {
-        text.style.fontSize = `${Math.floor(500 * containerWidth / textWidth)}px`;
-      }
-    };
-    // Wait for fonts before measuring so glyph widths are accurate
-    document.fonts.ready.then(fit);
-    const ro = new ResizeObserver(fit);
-    if (wrapRef.current) ro.observe(wrapRef.current);
-    return () => ro.disconnect();
-  }, []);
-
   return (
-    <footer className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]" style={{ overflowX: "clip" }}>
-
-      {/* Large display name — fills full width dynamically */}
-      <div ref={wrapRef} className="w-full px-6 pt-16 pb-4 select-none pointer-events-none">
-        <p
-          ref={textRef}
-          className="font-black text-[#fafaf9] leading-none whitespace-nowrap"
-          style={{
-            opacity: 0.4,
-            letterSpacing: "-0.03em",
-            display: "block",
-            width: "100%",
-          }}
-        >
+    <footer className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] overflow-hidden w-full px-6 pt-16 pb-8">
+      <svg viewBox="0 0 1000 120" className="w-full h-auto opacity-40 select-none pointer-events-none fill-[#fafaf9]">
+        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="font-black" style={{ letterSpacing: "-0.03em", fontSize: "120px" }}>
           Vijay Adithiya
-        </p>
-      </div>
+        </text>
+      </svg>
     </footer>
   );
 }
