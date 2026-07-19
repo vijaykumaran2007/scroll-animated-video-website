@@ -3,14 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ── CONFIG ────────────────────────────────────────────────
-const VIDEO_SRC = "/creature.mp4";
-const VIDEO_DURATION = 5.042;
-const LERP_FACTOR    = 0.12;
-const TOTAL_FRAMES   = 121; // 24fps × 5s
-const BITMAP_SCALE   = 0.75;
-// Creature sits at ~66% from the left — remap mouse so it looks straight
-// at the cursor when hovering directly over it.
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+// Background video — plays silently on loop behind the creature canvas.
+const BG_VIDEO_SRC    = "/bg_loop.mp4";
+
+// New creature head-turn frames (PNG, 5-digit zero-padded, 0–120 = 121 frames)
+const FRAMES_PATH     = "/new_creature_frames";
+const TOTAL_FRAMES    = 121;
+const LERP_FACTOR     = 0.18;
+const BITMAP_SCALE    = 0.75;
+
+// Creature sits at ~66 % from the left — remap so it faces the cursor.
 const GAZE_CENTER = 0.66;
 
 const isTouchDevice = () => {
@@ -30,13 +33,14 @@ const CURTAIN_SECTIONS = [
 
 export default function CreatureTracker() {
   const canvasRef       = useRef<HTMLCanvasElement>(null);
-  const videoRef        = useRef<HTMLVideoElement | null>(null);
+  // BG video element kept off-DOM — drawn directly onto canvas each RAF tick.
+  const bgVideoRef      = useRef<HTMLVideoElement | null>(null);
   const framesRef       = useRef<ImageBitmap[]>([]);
   const targetIdxRef    = useRef(TOTAL_FRAMES * 0.75);
   const currentIdxRef   = useRef(TOTAL_FRAMES * 0.75);
-  const lastDrawnIdxRef = useRef(-1);   // skip redraw when frame unchanged
+  const lastDrawnIdxRef = useRef(-1); // skip creature redraw when frame unchanged
   const rafRef          = useRef<number | null>(null);
-  const visibleRef      = useRef(true); // paused via IntersectionObserver
+  const visibleRef      = useRef(true);
   const resizeRafRef    = useRef<number | null>(null);
 
   const [progress,     setProgress]     = useState(0);
@@ -45,9 +49,7 @@ export default function CreatureTracker() {
   const [revealed,     setRevealed]     = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
 
-  // ── Lock scroll while loading ────────────────────────────
-  // Prevent the user from scrolling past the hero while frames are still
-  // being extracted. Released as soon as the curtain reveal begins.
+  // ── Lock scroll while loading ──────────────────────────────────────────────
   useEffect(() => {
     if (!revealing) {
       document.body.style.overflow = "hidden";
@@ -57,7 +59,7 @@ export default function CreatureTracker() {
     return () => { document.body.style.overflow = ""; };
   }, [revealing]);
 
-  // ── Reduced-motion ──────────────────────────────────────
+  // ── Reduced-motion ─────────────────────────────────────────────────────────
   useEffect(() => {
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduceMotion(mql.matches);
@@ -66,139 +68,90 @@ export default function CreatureTracker() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // ── Extract frames sequentially ──────────────────────────
+  // ── Create hidden BG video element (never added to DOM) ──────────────────
+  useEffect(() => {
+    const vid = document.createElement("video");
+    vid.src         = BG_VIDEO_SRC;
+    vid.muted       = true;
+    vid.loop        = true;
+    vid.playsInline = true;
+    vid.autoplay    = true;
+    vid.load();
+    vid.play().catch(() => {});
+    bgVideoRef.current = vid;
+    return () => { vid.pause(); vid.src = ""; bgVideoRef.current = null; };
+  }, []);
+
+  // ── Load creature PNG frames in parallel ──────────────────────────────────
   useEffect(() => {
     let cancelled = false;
+    const captured: ImageBitmap[] = new Array(TOTAL_FRAMES);
+    let loadedCount = 0;
 
-    const video       = document.createElement("video");
-    videoRef.current  = video;
-    video.src         = VIDEO_SRC;
-    video.muted       = true;
-    video.preload     = "auto";
-    video.playsInline = true;
-
-    const offscreen = document.createElement("canvas");
-    const ctx       = offscreen.getContext("2d")!;
-
-    const extractFrames = async () => {
-      try {
-        // Fetch video as blob to ensure it's fully in memory before seeking.
-        // This solves issues with byte-range requests and seeking on static hosts.
-        const response = await fetch(VIDEO_SRC);
-        if (!response.ok) throw new Error("Network response was not ok");
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        video.src = blobUrl;
-
-        await new Promise<void>((resolve, reject) => {
-          video.addEventListener("loadedmetadata", () => resolve(), { once: true });
-          video.addEventListener("error", (e) => {
-            console.error("Video load error:", video.error);
-            resolve();
-          }, { once: true });
-          video.load();
-        });
-
-        if (isTouchDevice()) {
-          const captured: ImageBitmap[] = new Array(TOTAL_FRAMES);
-          let loadedCount = 0;
-          
-          const promises = Array.from({ length: TOTAL_FRAMES }).map(async (_, i) => {
-            if (cancelled) return;
-            const imgStr = i.toString().padStart(4, '0');
-            const res = await fetch(`/frames_mobile/frame_${imgStr}.webp`);
-            const blob = await res.blob();
-            const bitmap = await createImageBitmap(blob);
-            captured[i] = bitmap;
-            
-            loadedCount++;
-            if (!cancelled) setProgress(Math.round((loadedCount / TOTAL_FRAMES) * 100));
-          });
-
-          await Promise.all(promises);
-          
-          if (cancelled) return;
-          framesRef.current = captured;
-          setProgress(100);
-          setReady(true);
-          return;
-        }
-
-        offscreen.width  = video.videoWidth;
-        offscreen.height = video.videoHeight;
-
-      const captured: ImageBitmap[] = [];
-
-      for (let i = 0; i < TOTAL_FRAMES; i++) {
+    const loadAll = async () => {
+      const promises = Array.from({ length: TOTAL_FRAMES }).map(async (_, i) => {
         if (cancelled) return;
-
-        const time = (i / (TOTAL_FRAMES - 1)) * VIDEO_DURATION;
-
-        await new Promise<void>((resolve) => {
-          video.currentTime = time;
-          video.addEventListener("seeked", () => resolve(), { once: true });
-        });
-
-        ctx.drawImage(video, 0, 0, offscreen.width, offscreen.height);
-        const bitmap = await createImageBitmap(offscreen, {
-          resizeWidth:   Math.round(offscreen.width  * BITMAP_SCALE),
-          resizeHeight:  Math.round(offscreen.height * BITMAP_SCALE),
+        const padded = i.toString().padStart(5, "0");
+        const res    = await fetch(`${FRAMES_PATH}/frame_${padded}.png`);
+        const blob   = await res.blob();
+        // Decode at full size, then rescale to reduce canvas draw cost.
+        const bitmapFull   = await createImageBitmap(blob);
+        const bitmapScaled = await createImageBitmap(bitmapFull, {
+          resizeWidth:   Math.round(bitmapFull.width  * BITMAP_SCALE),
+          resizeHeight:  Math.round(bitmapFull.height * BITMAP_SCALE),
           resizeQuality: "high",
         });
-        captured.push(bitmap);
+        bitmapFull.close();
+        captured[i] = bitmapScaled;
 
-        if (!cancelled) setProgress(Math.round(((i + 1) / TOTAL_FRAMES) * 100));
-      }
+        loadedCount++;
+        if (!cancelled) setProgress(Math.round((loadedCount / TOTAL_FRAMES) * 100));
+      });
 
-      framesRef.current = captured;
+      await Promise.all(promises);
+
       if (!cancelled) {
+        framesRef.current = captured;
         setProgress(100);
         setReady(true);
       }
-      } catch (err) {
-        console.error("Frame extraction error:", err);
-      }
     };
 
-    extractFrames().catch(console.error);
+    loadAll().catch(console.error);
 
     return () => {
       cancelled = true;
-      video.src = "";
       framesRef.current.forEach((b) => b?.close());
     };
   }, []);
 
-  // ── Start curtain reveal once frames are ready ───────────
+  // ── Start curtain reveal once frames are ready ────────────────────────────
   useEffect(() => {
     if (!ready) return;
     if (reduceMotion) { setRevealing(true); setRevealed(true); return; }
-    // Brief pause so the "100% / Core ready" state is visible.
     const t = setTimeout(() => setRevealing(true), 200);
     return () => clearTimeout(t);
   }, [ready, reduceMotion]);
 
-  // ── Canvas render loop ────────────────────────────────────
+  // ── Canvas render loop ────────────────────────────────────────────────────
   useEffect(() => {
     if (!ready) return;
 
     const canvas = canvasRef.current!;
     const ctx    = canvas.getContext("2d")!;
 
-    // RAF-debounced resize — avoids repeated layout thrash
     const resize = () => {
       if (resizeRafRef.current) cancelAnimationFrame(resizeRafRef.current);
       resizeRafRef.current = requestAnimationFrame(() => {
         canvas.width  = window.innerWidth;
         canvas.height = window.innerHeight;
-        lastDrawnIdxRef.current = -1; // force full redraw after resize
+        lastDrawnIdxRef.current = -1;
       });
     };
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     window.addEventListener("resize", resize);
 
-    // Pause RAF when hero is scrolled out of view
     const observer = new IntersectionObserver(
       ([entry]) => { visibleRef.current = entry.isIntersecting; },
       { threshold: 0 }
@@ -207,69 +160,91 @@ export default function CreatureTracker() {
 
     const draw = () => {
       rafRef.current = requestAnimationFrame(draw);
-      if (!visibleRef.current) return; // paused when off-screen
+      if (!visibleRef.current) return;
 
+      // ── LERP creature frame index ──
       currentIdxRef.current +=
         (targetIdxRef.current - currentIdxRef.current) * LERP_FACTOR;
 
-      const idx  = Math.round(currentIdxRef.current);
-      const safe = Math.min(Math.max(idx, 0), TOTAL_FRAMES - 1);
-
-      // Skip if frame hasn't changed — saves GPU bandwidth each tick
-      if (safe === lastDrawnIdxRef.current) return;
-      lastDrawnIdxRef.current = safe;
-
+      const idx   = Math.round(currentIdxRef.current);
+      const safe  = Math.min(Math.max(idx, 0), TOTAL_FRAMES - 1);
       const frame = framesRef.current[safe];
       if (!frame) return;
 
+      // Skip the full canvas redraw only when the creature frame hasn't
+      // changed AND the bg video is paused/ended. While the bg video plays
+      // we must redraw every tick so the video frame stays current.
+      const bgVid = bgVideoRef.current;
+      const bgPlaying = bgVid && !bgVid.paused && !bgVid.ended;
+      if (safe === lastDrawnIdxRef.current && !bgPlaying) return;
+      lastDrawnIdxRef.current = safe;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. Draw BG video (cover-fit, fills entire canvas)
+      if (bgVid && bgVid.readyState >= 2) {
+        // Prevent native loop stutter by manually seeking just before the end
+        if (bgVid.duration && bgVid.currentTime >= bgVid.duration - 0.05) {
+          bgVid.currentTime = 0.05; // Seek slightly past 0 to skip any black start frames
+          bgVid.play().catch(() => {});
+        }
+        
+        // Restored background video drawing
+        const vw = bgVid.videoWidth  || canvas.width;
+        const vh = bgVid.videoHeight || canvas.height;
+        const bgScale = Math.max(canvas.width / vw, canvas.height / vh);
+        const bw = vw * bgScale;
+        const bh = vh * bgScale;
+        const bx = (canvas.width  - bw) / 2;
+        const by = (canvas.height - bh) / 2;
+        ctx.drawImage(bgVid, bx, by, bw, bh);
+      }
+
+      // 2. Draw creature frame on top
+
       let scaleX = canvas.width  / frame.width;
       let scaleY = canvas.height / frame.height;
-      let scale  = Math.max(scaleX, scaleY);
-      
-      let x, y, w, h;
-      
+      let scale  = Math.max(scaleX, scaleY) * 0.85; // Make the creature slightly smaller
+
+      let x: number, y: number, w: number, h: number;
+
       if (isTouchDevice()) {
-        // Mobile layout: The frame is already cropped to portrait (centered on the creature).
-        // Zoom in slightly and anchor it to the bottom.
         scale *= 1.5;
-        w = frame.width * scale;
+        w = frame.width  * scale;
         h = frame.height * scale;
-        x = (canvas.width - w) / 2; // Perfectly centered
+        x = (canvas.width - w) / 2;
         y = canvas.height - h;
       } else if (window.innerWidth <= 768) {
-        // Responsive desktop view (narrow window but not a touch device)
         scale *= 1.5;
-        w = frame.width * scale;
+        w = frame.width  * scale;
         h = frame.height * scale;
         x = (canvas.width / 2) - (w * GAZE_CENTER);
         y = canvas.height - h;
       } else {
-        w = frame.width * scale;
+        w = frame.width  * scale;
         h = frame.height * scale;
         x = (canvas.width  - w) / 2;
         y = (canvas.height - h) / 2;
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(frame, x, y, w, h);
     };
 
     rafRef.current = requestAnimationFrame(draw);
 
     return () => {
-      if (rafRef.current)      cancelAnimationFrame(rafRef.current);
+      if (rafRef.current)       cancelAnimationFrame(rafRef.current);
       if (resizeRafRef.current) cancelAnimationFrame(resizeRafRef.current);
       window.removeEventListener("resize", resize);
       observer.disconnect();
     };
   }, [ready]);
 
-  // ── Mouse / Touch / Gyroscope input ──────────────────────
+  // ── Mouse / Touch / Gyroscope input ──────────────────────────────────────
   const [needsGyroPermission, setNeedsGyroPermission] = useState(false);
   const gyroActiveRef = useRef(false);
 
   useEffect(() => {
-
     const updateTarget = (ratio: number) => {
       const remapped =
         ratio < GAZE_CENTER
@@ -295,31 +270,32 @@ export default function CreatureTracker() {
     };
 
     const attachGyro = () => {
-      window.addEventListener("deviceorientation", onOrientation, { passive: true });
+      window.addEventListener("deviceorientation",         onOrientation, { passive: true });
       window.addEventListener("deviceorientationabsolute", onOrientation as any, { passive: true });
     };
 
     const tryGyro = async () => {
       if (!isTouchDevice()) return;
-      
-      // Check for iOS 13+ permission API
-      if (typeof window !== "undefined" && typeof (window as any).DeviceOrientationEvent !== "undefined" && typeof (window as any).DeviceOrientationEvent.requestPermission === "function") {
+      if (
+        typeof window !== "undefined" &&
+        typeof (window as any).DeviceOrientationEvent !== "undefined" &&
+        typeof (window as any).DeviceOrientationEvent.requestPermission === "function"
+      ) {
         setNeedsGyroPermission(true);
       } else {
-        // Unconditionally attach for Android and older browsers
         attachGyro();
       }
     };
 
     tryGyro();
-    window.addEventListener("mousemove", onMouse, { passive: true });
-    window.addEventListener("touchmove", onTouch, { passive: true });
+    window.addEventListener("mousemove",  onMouse, { passive: true });
+    window.addEventListener("touchmove",  onTouch, { passive: true });
     (window as any).__attachGyro = attachGyro;
 
     return () => {
-      window.removeEventListener("mousemove", onMouse);
-      window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("deviceorientation", onOrientation);
+      window.removeEventListener("mousemove",              onMouse);
+      window.removeEventListener("touchmove",              onTouch);
+      window.removeEventListener("deviceorientation",      onOrientation);
       window.removeEventListener("deviceorientationabsolute", onOrientation as any);
     };
   }, []);
@@ -341,7 +317,10 @@ export default function CreatureTracker() {
 
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
-      {/* ── Stage 1: Full-viewport loading overlay ─────────────────────────
+
+      {/* BG video is drawn directly onto the canvas — no separate DOM element */}
+
+      {/* ── Stage 1: Full-viewport loading overlay ───────────────────────────
           position: fixed + z-index 9999 so it covers the fixed navbar and
           ALL page content — nothing peeks through until frames are ready. */}
       <AnimatePresence>
@@ -356,11 +335,11 @@ export default function CreatureTracker() {
             }}
             transition={{ duration: reduceMotion ? 0 : 0.4, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              position: "fixed", inset: 0,   // ← fixed, not absolute
+              position: "fixed", inset: 0,
               background: "#09090B",
               display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
-              zIndex: 9999,                  // ← above navbar (z-50) and everything
+              zIndex: 9999,
               gap: "24px",
             }}
           >
@@ -373,11 +352,11 @@ export default function CreatureTracker() {
                 display: "flex", alignItems: "baseline", gap: "4px",
                 fontFamily: "var(--font-sora), sans-serif",
                 fontWeight: 600, fontSize: "28px",
-                color: "#fafaf9", letterSpacing: "-0.02em",
+                color: "#111111", letterSpacing: "-0.02em",
               }}
             >
               <span>VA</span>
-              <span style={{ color: "#10b981" }}>.</span>
+              <span style={{ color: "#6366f1" }}>.</span>
             </motion.div>
 
             {/* Progress bar */}
@@ -399,9 +378,9 @@ export default function CreatureTracker() {
               >
                 <motion.div
                   style={{
-                    height: "100%", background: "#10b981",
+                    height: "100%", background: "#6366f1",
                     borderRadius: "999px", transformOrigin: "left center",
-                    boxShadow: "0 0 12px rgba(16,185,129,0.4)",
+                    boxShadow: "0 0 12px rgba(99,102,241,0.4)",
                   }}
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: progress / 100 }}
@@ -418,7 +397,7 @@ export default function CreatureTracker() {
                 <span style={{ color: "rgba(255,255,255,0.40)", textTransform: "uppercase" }}>
                   {progress < 100 ? "Pre-rendering frames" : "Core ready"}
                 </span>
-                <span style={{ color: "#10b981", fontVariantNumeric: "tabular-nums" }}>
+                <span style={{ color: "#6366f1", fontVariantNumeric: "tabular-nums" }}>
                   {String(progress).padStart(2, "0")}%
                 </span>
               </div>
@@ -427,7 +406,7 @@ export default function CreatureTracker() {
         )}
       </AnimatePresence>
 
-      {/* ── Stage 2: Canvas ─────────────────────────────────────────── */}
+      {/* ── Stage 2: Creature canvas (mouse-scrubbed PNG frames) ─────────── */}
       <motion.canvas
         ref={canvasRef}
         style={{
@@ -439,7 +418,7 @@ export default function CreatureTracker() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       />
 
-      {/* ── Stage 3: Vertical curtain columns sliding upward ────────── */}
+      {/* ── Stage 3: Vertical curtain columns sliding upward ─────────────── */}
       <AnimatePresence>
         {revealing && !revealed && !reduceMotion && (
           <div
@@ -462,7 +441,6 @@ export default function CreatureTracker() {
                   ease:     section.ease,
                 }}
                 onAnimationComplete={() => {
-                  // Last column done → remove curtain from DOM
                   if (i === CURTAIN_SECTIONS.length - 1) setRevealed(true);
                 }}
                 style={{
@@ -471,7 +449,7 @@ export default function CreatureTracker() {
                   left:  section.left,
                   width: section.width,
                   background:
-                    "linear-gradient(180deg, #0c0c0e 0%, #0a0a0b 60%, #09090B 100%)",
+                    "linear-gradient(180deg, transparent 0%, #e3e2dc 60%, #e3e2dc 100%)",
                   borderLeft:  "1px solid rgba(255,255,255,0.04)",
                   borderRight: "1px solid rgba(255,255,255,0.04)",
                   willChange: "transform",

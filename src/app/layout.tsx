@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Sora, JetBrains_Mono } from "next/font/google";
+import { Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import LenisWrapper from "./components/LenisWrapper";
 
-const sora = Sora({
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-sora",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
   display: "swap",
 });
@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sora.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${manrope.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased">
         <div className="portrait-lock-overlay">
           <div className="portrait-lock-content">
@@ -48,7 +48,9 @@ export default function RootLayout({
           </div>
         </div>
         <div className="app-content">
-          {children}
+          <LenisWrapper>
+            {children}
+          </LenisWrapper>
         </div>
       </body>
     </html>

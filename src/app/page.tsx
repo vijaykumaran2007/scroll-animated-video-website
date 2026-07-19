@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import CreatureTracker from "./components/CreatureTracker";
 import WorkGallery from "./components/WorkGallery";
+import CertificatesGallery from "./components/CertificatesGallery";
 
 /* Inline brand icons. This version of lucide-react does not expose
    GitHub / LinkedIn names, so we hand-roll SVG paths that match the
@@ -140,37 +141,7 @@ const SKILLS: ReadonlyArray<{ group: string; items: string[] }> = [
 ];
 
 
-const CERTIFICATIONS: ReadonlyArray<{
-  name: string;
-  issuer: string;
-  image: string;
-  category: string;
-}> = [
-  {
-    name: "Supervised Machine Learning: Regression & Classification",
-    issuer: "DeepLearning.AI",
-    image: "/images/mlpart1.png",
-    category: "Machine Learning",
-  },
-  {
-    name: "Qualcomm AI Upskilling Program",
-    issuer: "Qualcomm",
-    image: "/images/qualcomm.png",
-    category: "AI",
-  },
-  {
-    name: "Python Programming Foundation",
-    issuer: "Onwingspan",
-    image: "/images/pythoncertificate.png",
-    category: "Python",
-  },
-  {
-    name: "Flutter & Dart: The Complete Development Guide",
-    issuer: "Udemy",
-    image: "/images/flutter.png",
-    category: "Mobile Development",
-  },
-];
+
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -179,18 +150,21 @@ export default function Home() {
   // Hero content fades out as the projects panel slides over it.
   const heroOpacity = useTransform(scrollY, [0, 480], [1, 0]);
   const heroTranslateY = useTransform(scrollY, [0, 480], [0, -32]);
+  
+  // Parallax effect for the entire hero background and content
+  const heroParallaxY = useTransform(scrollY, [0, 1000], [0, -750]);
 
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-[#0a0a0b] text-[#fafaf9] selection:bg-emerald-500 selection:text-emerald-950"
+      className="relative min-h-screen bg-[#e3e2dc] text-[#111111] selection:bg-indigo-500 selection:text-indigo-950"
     >
       <div className="relative w-full">
-        <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} />
+        <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} heroParallaxY={heroParallaxY} />
         <Skills />
       </div>
       <Projects />
-      <Certifications />
+      <CertificatesGallery />
       <WorkGallery />
       <Contact />
       <Footer />
@@ -203,95 +177,101 @@ export default function Home() {
 function Hero({
   heroOpacity,
   heroTranslateY,
+  heroParallaxY,
 }: {
   heroOpacity: ReturnType<typeof useTransform<number, number>>;
   heroTranslateY: ReturnType<typeof useTransform<number, number>>;
+  heroParallaxY: ReturnType<typeof useTransform<number, number>>;
 }) {
   return (
-    <section className="sticky top-0 h-[100dvh] w-full z-0 overflow-hidden bg-[#0a0a0b] flex flex-col justify-between">
-      <CreatureTracker />
-
-      {/* Subtle vertical scrim - keeps the creature visible without a heavy black wash. */}
-      <div
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-[#0a0a0b]/70 via-transparent to-[#0a0a0b]/85 pointer-events-none z-[1]"
-      />
-
-      {/* Floating navigation - no status dot, no monochromatic eyebrow chip. */}
-      <header className="fixed top-5 left-5 right-5 max-w-5xl mx-auto h-14 hidden md:flex items-center justify-between z-50 bg-[#0a0a0b]/75 border border-[#1f1f23] rounded-full px-5 backdrop-blur-xl">
-        <a
-          href="#top"
-          className="font-semibold text-base tracking-[-0.01em] text-[#fafaf9] hover:text-emerald-400 transition-colors"
-        >
-          Vijay Adithiya
-        </a>
-        <nav className="flex items-center gap-4 sm:gap-7 text-[13px] font-medium">
-          <a
-            href="#projects"
-            className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors"
-          >
-            Projects
-          </a>
-          <a
-            href="#about"
-            className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors"
-          >
-            About
-          </a>
-          <a
-            href="mailto:vijaykumaran2007@gmail.com"
-            className="text-[#a1a1aa] hover:text-[#fafaf9] transition-colors"
-          >
-            Contact
-          </a>
-        </nav>
-      </header>
+    <section className="sticky top-0 h-[100dvh] w-full z-0 overflow-hidden bg-[#e3e2dc]">
+      
+      {/* Parallax wrapper for the creature and text */}
+      <motion.div style={{ y: heroParallaxY }} className="absolute inset-0 w-full h-full flex flex-col justify-end pointer-events-none z-0">
+        
+        <div className="absolute inset-0 pointer-events-auto">
+          <CreatureTracker />
+        </div>
 
 
-      {/* Hero content - max-width discipline, no glowing CTA, no shimmer overlay. */}
+
+      {/* Hero content - matches the image layout */}
       <motion.div
         style={{ opacity: heroOpacity, y: heroTranslateY }}
-        className="relative max-w-5xl md:ml-8 w-full px-6 flex-1 flex flex-col justify-end pb-8 md:pb-20 z-10"
+        className="relative max-w-[90rem] mx-auto w-full px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto"
       >
-        <div className="max-w-3xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400 mb-5">
-            <MapPin className="inline-block w-3 h-3 -mt-0.5 mr-1.5 align-middle" />
-            Coimbatore, India
-          </p>
-          <h1 className="text-[clamp(1.875rem,4vw,3.75rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#fafaf9] text-balance">
-            Building mobile apps,
-            <span className="text-emerald-400"> machine learning </span>
-            systems, and immersive web experiences.
-          </h1>
-          <p className="mt-4 md:mt-6 text-[15px] md:text-[17px] leading-[1.6] text-[#fafaf9] max-w-xl">
-            I&apos;m Vijay, a CS undergrad at PSG iTech. I build with Flutter
-            and Firebase, dive deep into machine learning, and craft websites that feel alive.
-          </p>
-          <div className="mt-6 md:mt-9 flex flex-wrap items-center gap-3">
-            <a
-              href="#projects"
-              className="inline-flex items-center gap-2 bg-[#fafaf9] text-[#0a0a0b] font-semibold text-sm px-5 py-3 rounded-full hover:bg-emerald-400 hover:text-[#052e16] active:translate-y-[1px] transition-colors"
-            >
-              View selected work
-              <ArrowUpRight className="w-4 h-4" />
-            </a>
-            <a
-              href="mailto:vijaykumaran2007@gmail.com"
-              className="inline-flex items-center gap-2 bg-transparent text-[#fafaf9] font-medium text-sm px-5 py-3 rounded-full border border-[#2a2a30] hover:border-[#fafaf9] active:translate-y-[1px] transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              Email me
-            </a>
+        <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-24">
+          
+          {/* Left Side: Big Text & Trust */}
+          <div className="max-w-4xl flex flex-col gap-8">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400 -mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block w-3 h-3 -mt-0.5 mr-1.5 align-middle"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              Coimbatore, India
+            </p>
+            <h1 className="text-[clamp(2rem,3.5vw,3.75rem)] font-medium tracking-tight leading-[1.1] text-white text-balance">
+              Building mobile apps, <br />
+              <span className="text-white/80">machine learning</span> <br />
+              systems, and immersive <br />
+              web experiences.
+            </h1>
+          </div>
+
+          {/* Right Side: Subtext and buttons */}
+          <div className="max-w-md pb-6 md:pb-12">
+            <p className="text-[18px] leading-[1.4] text-white/90 mb-8 font-medium text-balance">
+              I&apos;m Vijay, a CS undergrad at PSG iTech. I build with Flutter
+              and Firebase, dive deep into machine learning, and craft websites that feel alive.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <a
+                href="#projects"
+                className="flex items-center gap-2 bg-white text-[#111111] px-5 py-3 rounded-[10px] text-[15px] font-semibold hover:bg-white/90 transition-colors"
+              >
+                View selected work
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+              </a>
+              <a
+                href="mailto:vijaykumaran2007@gmail.com"
+                className="flex items-center gap-2 bg-white/10 backdrop-blur-md text-white px-5 py-3 rounded-[10px] text-[15px] font-medium border border-white/20 hover:bg-white/20 transition-colors"
+              >
+                Email me
+              </a>
+            </div>
           </div>
         </div>
       </motion.div>
+      </motion.div>
+
+      {/* Floating navigation */}
+      <header className="fixed top-5 left-5 right-5 max-w-[90rem] mx-auto h-14 hidden md:flex items-center justify-between z-50 px-5 pointer-events-auto">
+        <a
+          href="#top"
+          className="font-medium text-[20px] tracking-tight text-white hover:text-white/80 transition-colors"
+        >
+          Vijay Adithiya
+        </a>
+        <div className="flex items-center gap-2 p-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
+          <nav className="flex items-center gap-7 px-6 text-[14px] font-medium text-white/90">
+            <a href="#projects" className="hover:text-white transition-colors">Projects</a>
+            <a href="#about" className="hover:text-white transition-colors">About</a>
+            <a href="mailto:vijaykumaran2007@gmail.com" className="hover:text-white transition-colors">Contact</a>
+          </nav>
+          <a
+            href="mailto:vijaykumaran2007@gmail.com"
+            className="flex items-center gap-2 bg-[#000000] text-white px-5 py-2.5 rounded-full text-[14px] font-medium hover:bg-black/80 transition-colors"
+          >
+            Email me
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+          </a>
+        </div>
+      </header>
 
       {/* GitHub button — sits bottom-right, covers the AI watermark */}
       <a
         href="https://github.com/vijaykumaran2007"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#0a0a0b]/80 border border-[#2a2a30] hover:border-emerald-400 text-[#a1a1aa] hover:text-emerald-400 rounded-full backdrop-blur-md transition-all duration-200"
+        className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#e3e2dc]/80 border border-[#b4b3ad] hover:border-indigo-400 text-[#444444] hover:text-indigo-400 rounded-full backdrop-blur-md transition-all duration-200"
       >
         <GithubIcon className="w-[22px] h-[22px] stroke-[2px]" />
       </a>
@@ -307,7 +287,7 @@ function Projects() {
   return (
     <section
       id="projects"
-      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] transform-gpu"
+      className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1] transform-gpu"
     >
       <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
         <SectionHeader
@@ -378,7 +358,7 @@ function ProjectCard({
   ];
 
   const themeBorderHover = [
-    "hover:border-green-500/30",
+    "hover:border-indigo-500/30",
     "hover:border-blue-500/30",
     "hover:border-indigo-500/30",
     "hover:border-pink-500/30",
@@ -393,7 +373,7 @@ function ProjectCard({
     >
       <motion.div
         style={{ scale }}
-        className={`w-full max-w-5xl rounded-[30px] sm:rounded-[40px] md:rounded-[48px] border border-[#2e2e36] bg-[#1c1c21] p-4 sm:p-5 md:p-6 shadow-2xl overflow-hidden relative group/card transition-all duration-500 ${themeBorderHover[index]}`}
+        className={`w-full max-w-5xl rounded-[30px] sm:rounded-[40px] md:rounded-[48px] border border-[#c8c7c1] bg-[#d5d4ce] p-4 sm:p-5 md:p-6 shadow-2xl overflow-hidden relative group/card transition-colors duration-500 ${themeBorderHover[index]}`}
       >
         <div
           className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none z-0"
@@ -403,29 +383,29 @@ function ProjectCard({
         <div className="relative z-10 flex flex-col h-full justify-between">
           <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4 md:mb-5">
             <span
-              className="font-black leading-none select-none text-[#fafaf9]/10"
+              className="font-black leading-none select-none text-[#111111]/10"
               style={{ fontSize: "clamp(2rem, 6vw, 80px)" }}
             >
               {project.num}
             </span>
             <div className="flex-1 flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[#a1a1aa] text-xs uppercase tracking-widest font-semibold border border-[#2a2a30] rounded-full px-3 py-1 bg-white/5">
+                <span className="text-[#444444] text-xs uppercase tracking-widest font-semibold border border-[#b4b3ad] rounded-full px-3 py-1 bg-[#111111]/5">
                   {project.category}
                 </span>
                 {project.stack.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-white/5 text-white/80 border border-white/10"
+                    className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-[#111111]/5 text-[#444444] border border-[#111111]/10"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
-              <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-white leading-tight">
+              <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-[#111111] leading-tight">
                 {project.title}
               </h3>
-              <p className="text-sm text-zinc-400 leading-relaxed max-w-lg font-medium">
+              <p className="text-sm text-[#444444] leading-relaxed max-w-lg font-medium">
                 {project.blurb}
               </p>
             </div>
@@ -434,7 +414,7 @@ function ProjectCard({
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:flex items-center gap-2 rounded-full border border-[#2a2a30] px-5 py-2.5 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 hover:border-white hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 w-fit flex-shrink-0"
+                className="hidden md:flex items-center gap-2 rounded-full border border-[#b4b3ad] px-5 py-2.5 text-[#111111] text-xs font-bold uppercase tracking-widest hover:bg-[#111111]/10 hover:border-[#111111] hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 w-fit flex-shrink-0"
               >
                 View
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -537,7 +517,7 @@ function Skills() {
   return (
     <section
       id="about"
-      className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] rounded-t-[2rem] shadow-[0_-30px_60px_rgba(0,0,0,0.75)]"
+      className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1] shadow-[0_-30px_60px_rgba(0,0,0,0.75)]"
     >
       <div className="max-w-7xl mx-auto px-6 py-24 md:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12">
@@ -553,15 +533,15 @@ function Skills() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-50px" }}
-              className="mt-14 grid grid-cols-2 gap-px bg-[#1f1f23] rounded-2xl overflow-hidden border border-[#1f1f23]"
+              className="mt-14 grid grid-cols-2 gap-px bg-[#c8c7c1] rounded-2xl overflow-hidden border border-[#c8c7c1]"
             >
               {SKILLS.map((group) => (
                 <motion.div
                   key={group.group}
                   variants={staggerItem}
-                  className="bg-[#0a0a0b] p-6 md:p-7 flex flex-col gap-4"
+                  className="bg-[#e3e2dc] p-6 md:p-7 flex flex-col gap-4"
                 >
-                  <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
+                  <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-indigo-400">
                     <Code2 className="w-3.5 h-3.5" />
                     {group.group}
                   </div>
@@ -569,7 +549,7 @@ function Skills() {
                     {group.items.map((item) => (
                       <li
                         key={item}
-                        className="text-[14px] text-[#fafaf9] leading-snug"
+                        className="text-[14px] text-[#111111] leading-snug"
                       >
                         {item}
                       </li>
@@ -602,10 +582,10 @@ function Skills() {
                 <motion.div
                   key={idx}
                   variants={staggerItem}
-                  className="flex items-start gap-4 bg-[#131316] p-6 rounded-2xl border border-[#1f1f23] transition-colors hover:border-[#2a2a30]"
+                  className="flex items-start gap-4 bg-[#d5d4ce] p-6 rounded-2xl border border-[#c8c7c1] transition-colors hover:border-[#b4b3ad]"
                 >
-                  <div className="mt-1.5 text-emerald-400 text-[10px]">●</div>
-                  <div className="text-[16px] font-medium text-[#fafaf9] leading-snug">
+                  <div className="mt-1.5 text-indigo-400 text-[10px]">●</div>
+                  <div className="text-[16px] font-medium text-[#111111] leading-snug">
                     {item}
                   </div>
                 </motion.div>
@@ -618,105 +598,7 @@ function Skills() {
   );
 }
 
-/* ---------- CERTIFICATIONS ------------------------------------------------ */
 
-function CertCard({ cert, i }: { cert: typeof CERTIFICATIONS[number]; i: number }) {
-  return (
-    <motion.div
-      key={cert.name}
-      variants={staggerItem}
-      className={`group relative rounded-2xl border transition-all duration-500 bg-[#141417] overflow-hidden flex flex-col justify-between cursor-pointer border-[#2e2e36] hover:border-emerald-500/60 ${
-        i === 0
-          ? "md:col-span-2 md:row-span-2"
-          : i === 3
-            ? "md:col-span-3 md:row-span-1"
-            : "md:col-span-1 md:row-span-1"
-      }`}
-    >
-      {/* Subtle ambient background image */}
-      <div className="absolute inset-0 z-0 opacity-15 transition-opacity duration-700 blur-[2px]">
-        <Image
-          src={cert.image}
-          alt={cert.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover grayscale"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-[#141417]/40" />
-      </div>
-
-      {/* Certificate reveal overlay on hover - PURE CSS */}
-      <div className="absolute inset-0 z-20 rounded-2xl overflow-hidden opacity-0 scale-95 blur-sm group-hover:opacity-100 group-hover:scale-100 group-hover:blur-0 transition-all duration-500 ease-out pointer-events-none">
-        <Image
-          src={cert.image}
-          alt={`${cert.name} certificate`}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
-          <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400 mb-2">
-            <Award className="w-3.5 h-3.5" />
-            {cert.issuer}
-          </div>
-          <p className="text-white font-semibold text-lg leading-snug">{cert.name}</p>
-        </div>
-      </div>
-
-      {/* Normal card content */}
-      <div className="relative z-10 flex flex-col justify-between h-full p-6 md:p-8">
-        <div className="flex items-center justify-between gap-4 mb-5">
-          <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-emerald-400">
-            <Award className="w-3.5 h-3.5" />
-            {cert.issuer}
-          </div>
-          <div className="text-[10px] font-semibold tracking-wider uppercase bg-white/5 border border-white/10 text-[#a1a1aa] px-2.5 py-1 rounded-full backdrop-blur-md">
-            {cert.category}
-          </div>
-        </div>
-
-        <div>
-          <h3
-            className={`font-semibold text-[#fafaf9] leading-snug transition-colors ${
-              i === 0 ? "text-[28px] md:text-4xl" : "text-[20px] md:text-2xl"
-            }`}
-          >
-            {cert.name}
-          </h3>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function Certifications() {
-  return (
-    <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
-      <div className="w-full px-4 md:px-12 py-24 md:py-28">
-        <div className="max-w-5xl mx-auto mb-14">
-          <SectionHeader
-            eyebrow="Certifications"
-            title="Licenses &amp; Certifications"
-            intro="Formal training and verified credentials demonstrating proficiency in machine learning, mobile development, and core programming paradigms."
-          />
-        </div>
-
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
-          className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[280px]"
-        >
-          {CERTIFICATIONS.map((cert, i) => (
-            <CertCard key={cert.name} cert={cert} i={i} />
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
 
 /* ---------- CONTACT ------------------------------------------------------- */
 
@@ -730,17 +612,17 @@ function Contact() {
   };
 
   return (
-    <section className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23]">
+    <section className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1]">
       <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
         <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-12 md:items-center">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400 mb-5">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400 mb-5">
               Contact
             </p>
-            <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#fafaf9] text-balance">
+            <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#111111] text-balance">
               Have a project, an internship opportunity, or just want to talk Flutter?
             </h2>
-            <p className="mt-5 text-[16px] leading-[1.6] text-[#a1a1aa] max-w-md">
+            <p className="mt-5 text-[16px] leading-[1.6] text-[#444444] max-w-md">
               I&apos;m open to internships, hackathon teams, and interesting
               collaborations. Email is the fastest way to reach me.
             </p>
@@ -749,7 +631,7 @@ function Contact() {
           <div className="flex flex-col gap-4 md:items-end">
             <button
               onClick={handleCopy}
-              className="group inline-flex items-center justify-between gap-4 bg-[#fafaf9] text-[#0a0a0b] rounded-full px-6 py-4 font-semibold text-[15px] hover:bg-emerald-400 hover:text-[#052e16] active:translate-y-[1px] transition-colors md:w-fit"
+              className="group inline-flex items-center justify-between gap-4 bg-[#111111] text-[#e3e2dc] rounded-full px-6 py-4 font-semibold text-[15px] hover:bg-indigo-400 hover:text-[#e0e7ff] active:translate-y-[1px] transition-colors md:w-fit"
             >
               {copied ? "Copied to clipboard!" : "vijaykumaran2007@gmail.com"}
               {!copied && <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
@@ -760,7 +642,7 @@ function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors font-medium text-[15px]"
+                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#b4b3ad] text-[#444444] hover:text-[#111111] hover:border-[#111111] transition-colors font-medium text-[15px]"
               >
                 <GithubIcon className="w-5 h-5" />
                 GitHub
@@ -770,7 +652,7 @@ function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#2a2a30] text-[#a1a1aa] hover:text-[#fafaf9] hover:border-[#fafaf9] transition-colors font-medium text-[15px]"
+                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#b4b3ad] text-[#444444] hover:text-[#111111] hover:border-[#111111] transition-colors font-medium text-[15px]"
               >
                 <LinkedinIcon className="w-5 h-5" />
                 LinkedIn
@@ -786,13 +668,50 @@ function Contact() {
 /* ---------- FOOTER -------------------------------------------------------- */
 
 function Footer() {
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fit = () => {
+      const text = textRef.current;
+      const wrap = wrapRef.current;
+      if (!text || !wrap) return;
+      // Use a very large size so the text definitely overflows, then measure
+      text.style.fontSize = "500px";
+      text.style.width = "max-content";
+      const textWidth = text.scrollWidth;
+      text.style.width = "";
+      const style = window.getComputedStyle(wrap);
+      const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      const containerWidth = wrap.offsetWidth - paddingX;
+      if (textWidth > 0) {
+        text.style.fontSize = `${Math.floor(500 * containerWidth / textWidth)}px`;
+      }
+    };
+    // Wait for fonts before measuring so glyph widths are accurate
+    document.fonts.ready.then(fit);
+    const ro = new ResizeObserver(fit);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    return () => ro.disconnect();
+  }, []);
+
   return (
-    <footer className="relative z-10 bg-[#0a0a0b] border-t border-[#1f1f23] overflow-hidden w-full px-6 pt-16 pb-8">
-      <svg viewBox="0 0 1000 120" className="w-full h-auto opacity-40 select-none pointer-events-none fill-[#fafaf9]">
-        <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="font-black" style={{ letterSpacing: "-0.03em", fontSize: "120px" }}>
+    <footer className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1]" style={{ overflowX: "clip" }}>
+      {/* Large display name — fills full width dynamically */}
+      <div ref={wrapRef} className="w-full px-6 pt-16 pb-4 select-none pointer-events-none">
+        <p
+          ref={textRef}
+          className="font-black text-[#111111] leading-none whitespace-nowrap"
+          style={{
+            opacity: 0.4,
+            letterSpacing: "-0.03em",
+            display: "block",
+            width: "100%",
+          }}
+        >
           Vijay Adithiya
-        </text>
-      </svg>
+        </p>
+      </div>
     </footer>
   );
 }
@@ -815,13 +734,13 @@ function SectionHeader({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400 mb-4">
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400 mb-4">
         {eyebrow}
       </p>
-      <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] font-semibold tracking-[-0.02em] leading-[1.08] text-[#fafaf9] text-balance">
+      <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] font-semibold tracking-[-0.02em] leading-[1.08] text-[#111111] text-balance">
         {title}
       </h2>
-      <p className="mt-4 text-[16px] leading-[1.6] text-[#a1a1aa] max-w-[55ch]">
+      <p className="mt-4 text-[16px] leading-[1.6] text-[#444444] max-w-[55ch]">
         {intro}
       </p>
     </div>

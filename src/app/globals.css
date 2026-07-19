@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-    --font-sora: var(--font-sora);
+    --font-manrope: var(--font-manrope);
     --font-mono: var(--font-mono);
 
-    --color-bg: #0a0a0b;
-    --color-surface: #131316;
-    --color-surface-2: #18181c;
-    --color-border: #1f1f23;
-    --color-border-strong: #2a2a30;
-    --color-ink: #fafaf9;
-    --color-ink-muted: #a1a1aa;
-    --color-ink-dim: #71717a;
-    --color-accent: #10b981;
-    --color-accent-soft: #34d399;
-    --color-accent-deep: #047857;
+    --color-bg: #e3e2dc;
+    --color-surface: #d5d4ce;
+    --color-surface-2: #d5d4ce;
+    --color-border: #c8c7c1;
+    --color-border-strong: #b4b3ad;
+    --color-ink: #111111;
+    --color-ink-muted: #444444;
+    --color-ink-dim: #666666;
+    --color-accent: #6366f1;
+    --color-accent-soft: #818cf8;
+    --color-accent-deep: #4338ca;
 }
 
 :root {
@@ -31,7 +31,7 @@ body {
     background: var(--background);
     color: var(--foreground);
     font-family:
-        var(--font-sora),
+        var(--font-manrope),
         system-ui,
         -apple-system,
         "Segoe UI",
@@ -50,7 +50,7 @@ body {
 
 ::selection {
     background: var(--color-accent);
-    color: #052e16;
+    color: #042f2e;
 }
 
 ::-webkit-scrollbar {
@@ -118,12 +118,12 @@ body {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    font-family: var(--font-sora), sans-serif;
+    font-family: var(--font-manrope), sans-serif;
 }
 
 .portrait-lock-content p {
     color: var(--color-ink-muted);
-    font-family: var(--font-sora), sans-serif;
+    font-family: var(--font-manrope), sans-serif;
 }
 
 /* Show overlay on mobile landscape */

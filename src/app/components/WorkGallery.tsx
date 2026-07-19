@@ -112,11 +112,11 @@ export default function WorkGallery() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#0a0a0b] border-t border-[#1f1f23]"
+      className="relative overflow-hidden bg-[#e3e2dc] border-t border-[#c8c7c1]"
     >
       {/* Section label */}
       <div className="px-6 md:px-12 pt-16 pb-8 max-w-5xl mx-auto flex items-center justify-between">
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400">
           Work gallery
         </p>
         <span className="font-mono text-[10px] text-[#3f3f46] tracking-[0.1em] uppercase">
@@ -134,7 +134,7 @@ export default function WorkGallery() {
           {ROW_1_TRIPLED.map((src, i) => (
             <div
               key={`r1-${i}`}
-              className="flex-shrink-0 rounded-xl overflow-hidden border border-[#1f1f23]"
+              className="flex-shrink-0 rounded-xl overflow-hidden border border-[#c8c7c1]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -160,7 +160,7 @@ export default function WorkGallery() {
           {ROW_2_TRIPLED.map((src, i) => (
             <div
               key={`r2-${i}`}
-              className="flex-shrink-0 rounded-xl overflow-hidden border border-[#1f1f23]"
+              className="flex-shrink-0 rounded-xl overflow-hidden border border-[#c8c7c1]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
