@@ -140,36 +140,23 @@ const SKILLS: ReadonlyArray<{ group: string; items: string[] }> = [
   },
 ];
 
-
-
-
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
 
-  // Hero content fades out as the projects panel slides over it.
-  const heroOpacity = useTransform(scrollY, [0, 480], [1, 0]);
-  const heroTranslateY = useTransform(scrollY, [0, 480], [0, -32]);
-  
-  // Using 900 as typical 100vh for SSR compatibility
-  const viewportHeight = 900;
-  const heroBgTranslateY = useTransform(scrollY, [0, viewportHeight], [0, 0]);
-  const heroBgScale = useTransform(scrollY, [0, viewportHeight], [1, 1]);
+  // Option B Parallax: Background moves at 0.5x speed.
+  // 900px is roughly 100vh on desktop.
+  const heroBgY = useTransform(scrollY, [0, 900], [0, 450]);
 
   return (
     <div
       ref={containerRef}
       className="relative min-h-screen bg-[#e3e2dc] text-[#111111] selection:bg-indigo-500 selection:text-indigo-950"
     >
-      <div className="relative w-full">
-        <Hero 
-          heroOpacity={heroOpacity} 
-          heroTranslateY={heroTranslateY} 
-          heroBgTranslateY={heroBgTranslateY} 
-          heroBgScale={heroBgScale}
-        />
-        <Skills />
+      <div className="relative w-full z-0 overflow-hidden">
+        <Hero heroBgY={heroBgY} />
       </div>
+      <Skills />
       <Projects />
       <CertificatesGallery />
       <WorkGallery />
@@ -181,35 +168,22 @@ export default function Home() {
 
 /* ---------- HERO ---------------------------------------------------------- */
 
-function Hero({
-  heroOpacity,
-  heroTranslateY,
-  heroBgTranslateY,
-  heroBgScale,
-}: {
-  heroOpacity: ReturnType<typeof useTransform<number, number>>;
-  heroTranslateY: ReturnType<typeof useTransform<number, number>>;
-  heroBgTranslateY: ReturnType<typeof useTransform<number, number>>;
-  heroBgScale: ReturnType<typeof useTransform<number, number>>;
-}) {
+function Hero({ heroBgY }: { heroBgY: any }) {
   return (
-    <section className="sticky top-0 h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#e3e2dc]">
+    <section id="hero-section" className="relative h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#e3e2dc]">
       
-      {/* Background creature */}
-      <div className="absolute inset-0 w-full h-full flex flex-col justify-end pointer-events-none z-0">
-        <motion.div 
-          style={{ y: heroBgTranslateY, scale: heroBgScale }}
-          className="absolute inset-0 pointer-events-auto origin-bottom"
-        >
+      {/* Background Parallax Layer */}
+      <motion.div 
+        style={{ y: heroBgY }}
+        className="absolute inset-0 w-full h-full flex flex-col justify-end pointer-events-none z-0 will-change-transform"
+      >
+        <div className="absolute inset-0 pointer-events-auto origin-bottom">
           <CreatureTracker />
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
       {/* Hero content */}
-      <motion.div
-        style={{ opacity: heroOpacity, y: heroTranslateY }}
-        className="relative max-w-[90rem] mx-auto w-full px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto"
-      >
+      <div className="relative max-w-[90rem] mx-auto w-full px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto">
         <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-24">
           
           {/* Left Side: Big Text & Trust */}
@@ -249,7 +223,7 @@ function Hero({
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Floating navigation */}
       <header className="fixed top-5 left-5 right-5 max-w-[90rem] mx-auto h-14 hidden md:flex items-center justify-between z-50 px-5 pointer-events-auto">
@@ -565,14 +539,8 @@ function Skills() {
   return (
     <section
       id="about"
-      className="relative z-10 w-full pt-40 pb-24 md:pb-32 bg-[#e3e2dc] mt-[50vh]"
+      className="relative z-30 w-full pt-40 pb-24 md:pb-32 bg-[#e3e2dc] will-change-transform"
     >
-      {/* Background is now solid per user request, removing the gradient fade */}
-
-
-
-
-
       <div className="max-w-[90rem] mx-auto px-8 relative z-20">
         
         {/* ── SKILLS / TOOLS ── */}
