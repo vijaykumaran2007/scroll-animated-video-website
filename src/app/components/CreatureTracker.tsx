@@ -33,8 +33,6 @@ const CURTAIN_SECTIONS = [
 
 export default function CreatureTracker() {
   const canvasRef       = useRef<HTMLCanvasElement>(null);
-  // BG video element kept off-DOM — drawn directly onto canvas each RAF tick.
-  const bgVideoRef      = useRef<HTMLVideoElement | null>(null);
   const framesRef       = useRef<ImageBitmap[]>([]);
   const targetIdxRef    = useRef(TOTAL_FRAMES * 0.75);
   const currentIdxRef   = useRef(TOTAL_FRAMES * 0.75);
@@ -68,19 +66,7 @@ export default function CreatureTracker() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  // ── Create hidden BG video element (never added to DOM) ──────────────────
-  useEffect(() => {
-    const vid = document.createElement("video");
-    vid.src         = BG_VIDEO_SRC;
-    vid.muted       = true;
-    vid.loop        = true;
-    vid.playsInline = true;
-    vid.autoplay    = true;
-    vid.load();
-    vid.play().catch(() => {});
-    bgVideoRef.current = vid;
-    return () => { vid.pause(); vid.src = ""; bgVideoRef.current = null; };
-  }, []);
+
 
   // ── Load creature PNG frames in parallel ──────────────────────────────────
   useEffect(() => {
@@ -171,36 +157,13 @@ export default function CreatureTracker() {
       const frame = framesRef.current[safe];
       if (!frame) return;
 
-      // Skip the full canvas redraw only when the creature frame hasn't
-      // changed AND the bg video is paused/ended. While the bg video plays
-      // we must redraw every tick so the video frame stays current.
-      const bgVid = bgVideoRef.current;
-      const bgPlaying = bgVid && !bgVid.paused && !bgVid.ended;
-      if (safe === lastDrawnIdxRef.current && !bgPlaying) return;
+      // Skip the full canvas redraw only when the creature frame hasn't changed.
+      if (safe === lastDrawnIdxRef.current) return;
       lastDrawnIdxRef.current = safe;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 1. Draw BG video (cover-fit, fills entire canvas)
-      if (bgVid && bgVid.readyState >= 2) {
-        // Prevent native loop stutter by manually seeking just before the end
-        if (bgVid.duration && bgVid.currentTime >= bgVid.duration - 0.05) {
-          bgVid.currentTime = 0.05; // Seek slightly past 0 to skip any black start frames
-          bgVid.play().catch(() => {});
-        }
-        
-        // Restored background video drawing
-        const vw = bgVid.videoWidth  || canvas.width;
-        const vh = bgVid.videoHeight || canvas.height;
-        const bgScale = Math.max(canvas.width / vw, canvas.height / vh);
-        const bw = vw * bgScale;
-        const bh = vh * bgScale;
-        const bx = (canvas.width  - bw) / 2;
-        const by = (canvas.height - bh) / 2;
-        ctx.drawImage(bgVid, bx, by, bw, bh);
-      }
-
-      // 2. Draw creature frame on top
+      // Draw creature frame
 
       let scaleX = canvas.width  / frame.width;
       let scaleY = canvas.height / frame.height;
@@ -318,7 +281,14 @@ export default function CreatureTracker() {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
 
-      {/* BG video is drawn directly onto the canvas — no separate DOM element */}
+      <video
+        src={BG_VIDEO_SRC}
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      />
 
       {/* ── Stage 1: Full-viewport loading overlay ───────────────────────────
           position: fixed + z-index 9999 so it covers the fixed navbar and

@@ -150,6 +150,11 @@ export default function Home() {
   // Hero content fades out as the projects panel slides over it.
   const heroOpacity = useTransform(scrollY, [0, 480], [1, 0]);
   const heroTranslateY = useTransform(scrollY, [0, 480], [0, -32]);
+  
+  // Using 900 as typical 100vh for SSR compatibility
+  const viewportHeight = 900;
+  const heroBgTranslateY = useTransform(scrollY, [0, viewportHeight], [0, 0]);
+  const heroBgScale = useTransform(scrollY, [0, viewportHeight], [1, 1]);
 
   return (
     <div
@@ -157,7 +162,12 @@ export default function Home() {
       className="relative min-h-screen bg-[#e3e2dc] text-[#111111] selection:bg-indigo-500 selection:text-indigo-950"
     >
       <div className="relative w-full">
-        <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} />
+        <Hero 
+          heroOpacity={heroOpacity} 
+          heroTranslateY={heroTranslateY} 
+          heroBgTranslateY={heroBgTranslateY} 
+          heroBgScale={heroBgScale}
+        />
         <Skills />
       </div>
       <Projects />
@@ -174,23 +184,28 @@ export default function Home() {
 function Hero({
   heroOpacity,
   heroTranslateY,
+  heroBgTranslateY,
+  heroBgScale,
 }: {
   heroOpacity: ReturnType<typeof useTransform<number, number>>;
   heroTranslateY: ReturnType<typeof useTransform<number, number>>;
+  heroBgTranslateY: ReturnType<typeof useTransform<number, number>>;
+  heroBgScale: ReturnType<typeof useTransform<number, number>>;
 }) {
   return (
-    <section className="sticky top-0 h-[100dvh] w-full z-0 overflow-hidden bg-[#e3e2dc]">
+    <section className="sticky top-0 h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#e3e2dc]">
       
-      {/* Background creature - Static in viewport, no translation transforms to avoid heavy WebGL repaints */}
+      {/* Background creature */}
       <div className="absolute inset-0 w-full h-full flex flex-col justify-end pointer-events-none z-0">
-        
-        <div className="absolute inset-0 pointer-events-auto">
+        <motion.div 
+          style={{ y: heroBgTranslateY, scale: heroBgScale }}
+          className="absolute inset-0 pointer-events-auto origin-bottom"
+        >
           <CreatureTracker />
-        </div>
+        </motion.div>
+      </div>
 
-
-
-      {/* Hero content - matches the image layout */}
+      {/* Hero content */}
       <motion.div
         style={{ opacity: heroOpacity, y: heroTranslateY }}
         className="relative max-w-[90rem] mx-auto w-full px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto"
@@ -235,7 +250,6 @@ function Hero({
           </div>
         </div>
       </motion.div>
-      </div>
 
       {/* Floating navigation */}
       <header className="fixed top-5 left-5 right-5 max-w-[90rem] mx-auto h-14 hidden md:flex items-center justify-between z-50 px-5 pointer-events-auto">
@@ -282,9 +296,9 @@ function Projects() {
   return (
     <section
       id="projects"
-      className="relative z-10 bg-[#e3e2dc] pt-24 pb-48 md:pt-32 transform-gpu"
+      className="relative z-10 pt-24 pb-48 md:pt-32 transform-gpu"
     >
-      <div className="max-w-[90rem] mx-auto px-8">
+      <div className="max-w-[90rem] mx-auto px-8 relative z-10">
         <div className="max-w-2xl mb-24 md:mb-32">
           <SectionHeader
             eyebrow="Projects"
@@ -551,43 +565,15 @@ function Skills() {
   return (
     <section
       id="about"
-      className="relative z-10 w-full pt-40 pb-24 md:pb-32"
+      className="relative z-10 w-full pt-40 pb-24 md:pb-32 bg-[#e3e2dc] mt-[50vh]"
     >
-      {/* 
-        SEAMLESS TRANSITION
-        Fades from transparent (showing the hero behind) to solid background.
-        This completely eliminates the abrupt hard-cut border.
-      */}
-      <div className="absolute top-0 inset-x-0 h-[50vh] bg-gradient-to-b from-transparent to-[#e3e2dc] pointer-events-none" />
-      <div className="absolute top-[50vh] inset-x-0 bottom-0 bg-[#e3e2dc] pointer-events-none" />
+      {/* Background is now solid per user request, removing the gradient fade */}
 
-      {/* 
-        PERFORMANCE OPTIMIZED LIGHTING
-        Replaced active scroll-bound transforms on large background gradients with static layers.
-        Translating massive radial gradients over WebGL canvas causes fill-rate choking.
-      */}
-      <div 
-        className="absolute top-[20vh] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] pointer-events-none" 
-        style={{
-          background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)"
-        }}
-      />
-      <div 
-        className="absolute bottom-[10vh] right-[-10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] pointer-events-none" 
-        style={{
-          background: "radial-gradient(circle, rgba(217,119,6,0.05) 0%, transparent 70%)"
-        }}
-      />
-      
-      {/* Barely noticeable, static grain texture - Optimized to avoid mix-blend-mode composite bottlenecks */}
-      <div 
-        className="absolute top-[20vh] inset-x-0 bottom-0 opacity-[0.008] pointer-events-none"
-        style={{ 
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-        }} 
-      />
 
-      <div className="max-w-[90rem] mx-auto px-8 relative z-20 mt-[55vh]">
+
+
+
+      <div className="max-w-[90rem] mx-auto px-8 relative z-20">
         
         {/* ── SKILLS / TOOLS ── */}
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 mb-32 md:mb-48">
