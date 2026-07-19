@@ -150,9 +150,6 @@ export default function Home() {
   // Hero content fades out as the projects panel slides over it.
   const heroOpacity = useTransform(scrollY, [0, 480], [1, 0]);
   const heroTranslateY = useTransform(scrollY, [0, 480], [0, -32]);
-  
-  // Parallax effect for the entire hero background and content
-  const heroParallaxY = useTransform(scrollY, [0, 1000], [0, -750]);
 
   return (
     <div
@@ -160,7 +157,7 @@ export default function Home() {
       className="relative min-h-screen bg-[#e3e2dc] text-[#111111] selection:bg-indigo-500 selection:text-indigo-950"
     >
       <div className="relative w-full">
-        <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} heroParallaxY={heroParallaxY} />
+        <Hero heroOpacity={heroOpacity} heroTranslateY={heroTranslateY} />
         <Skills />
       </div>
       <Projects />
@@ -177,17 +174,15 @@ export default function Home() {
 function Hero({
   heroOpacity,
   heroTranslateY,
-  heroParallaxY,
 }: {
   heroOpacity: ReturnType<typeof useTransform<number, number>>;
   heroTranslateY: ReturnType<typeof useTransform<number, number>>;
-  heroParallaxY: ReturnType<typeof useTransform<number, number>>;
 }) {
   return (
     <section className="sticky top-0 h-[100dvh] w-full z-0 overflow-hidden bg-[#e3e2dc]">
       
-      {/* Parallax wrapper for the creature and text */}
-      <motion.div style={{ y: heroParallaxY }} className="absolute inset-0 w-full h-full flex flex-col justify-end pointer-events-none z-0">
+      {/* Background creature - Static in viewport, no translation transforms to avoid heavy WebGL repaints */}
+      <div className="absolute inset-0 w-full h-full flex flex-col justify-end pointer-events-none z-0">
         
         <div className="absolute inset-0 pointer-events-auto">
           <CreatureTracker />
@@ -240,7 +235,7 @@ function Hero({
           </div>
         </div>
       </motion.div>
-      </motion.div>
+      </div>
 
       {/* Floating navigation */}
       <header className="fixed top-5 left-5 right-5 max-w-[90rem] mx-auto h-14 hidden md:flex items-center justify-between z-50 px-5 pointer-events-auto">
@@ -287,16 +282,18 @@ function Projects() {
   return (
     <section
       id="projects"
-      className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1] transform-gpu"
+      className="relative z-10 bg-[#e3e2dc] pt-24 pb-48 md:pt-32 transform-gpu"
     >
-      <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
-        <SectionHeader
-          eyebrow="Projects"
-          title="Selected work"
-          intro="Three projects across mobile, web, and ML — each one started as a problem worth solving."
-        />
+      <div className="max-w-[90rem] mx-auto px-8">
+        <div className="max-w-2xl mb-24 md:mb-32">
+          <SectionHeader
+            eyebrow="Projects"
+            title="Selected work"
+            intro="A curated selection of applications and experiments, built to solve real problems through design and engineering."
+          />
+        </div>
 
-        <div className="mt-16 flex flex-col items-center mt-[15vh]">
+        <div className="flex flex-col relative w-full">
           {PROJECTS.map((project, i) => (
             <ProjectCard
               key={project.title}
@@ -321,171 +318,207 @@ function ProjectCard({
   total: number;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const img1Ref = useRef<HTMLImageElement>(null);
-  const img2Ref = useRef<HTMLImageElement>(null);
-  const img3Ref = useRef<HTMLImageElement>(null);
 
+  // Track when this card hits the top and starts getting covered by the next card
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
   });
 
-  const targetScale = 1 - (total - 1 - index) * 0.03;
+  // Cinematic scroll: Card scales down and fades into the shadows as it gets covered
+  const targetScale = 1 - (total - 1 - index) * 0.05;
   const scale = useTransform(scrollYProgress, [0, 1], [1, targetScale]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8, 1], [1, 0.2, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
-  // Direct DOM updates — no setState, no re-renders on every mousemove
-  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    if (img1Ref.current) img1Ref.current.style.transform = `scale(1.08) translate3d(${x * -10}px, ${y * -10}px, 0)`;
-    if (img2Ref.current) img2Ref.current.style.transform = `scale(1.08) translate3d(${x * -14}px, ${y * -14}px, 0)`;
-    if (img3Ref.current) img3Ref.current.style.transform = `scale(1.08) translate3d(${x * -12}px, ${y * -12}px, 0)`;
-  };
+  // Layout variety: Alternate image/text positions
+  const isEven = index % 2 === 0;
 
-  const handleMouseLeave = () => {
-    if (img1Ref.current) img1Ref.current.style.transform = "scale(1.08) translate3d(0px, 0px, 0)";
-    if (img2Ref.current) img2Ref.current.style.transform = "scale(1.08) translate3d(0px, 0px, 0)";
-    if (img3Ref.current) img3Ref.current.style.transform = "scale(1.08) translate3d(0px, 0px, 0)";
-  };
-
+  // Extremely lightweight CSS gradients instead of blur filters
   const themeGlows = [
-    "radial-gradient(circle at 80% 20%, rgba(34,197,94,0.12) 0%, transparent 60%)",
-    "radial-gradient(circle at 80% 20%, rgba(59,130,246,0.12) 0%, transparent 60%)",
-    "radial-gradient(circle at 80% 20%, rgba(99,102,241,0.12) 0%, transparent 60%)",
-    "radial-gradient(circle at 80% 20%, rgba(236,72,153,0.12) 0%, transparent 60%)",
-    "radial-gradient(circle at 80% 20%, rgba(234,179,8,0.12) 0%, transparent 60%)",
-  ];
-
-  const themeBorderHover = [
-    "hover:border-indigo-500/30",
-    "hover:border-blue-500/30",
-    "hover:border-indigo-500/30",
-    "hover:border-pink-500/30",
-    "hover:border-yellow-500/30",
+    "radial-gradient(circle at 70% 30%, rgba(34,197,94,0.06) 0%, transparent 60%)",
+    "radial-gradient(circle at 30% 70%, rgba(59,130,246,0.06) 0%, transparent 60%)",
+    "radial-gradient(circle at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 60%)",
+    "radial-gradient(circle at 80% 20%, rgba(236,72,153,0.06) 0%, transparent 60%)",
+    "radial-gradient(circle at 20% 80%, rgba(234,179,8,0.06) 0%, transparent 60%)",
   ];
 
   return (
     <div
       ref={containerRef}
-      className="h-[75vh] md:h-[80vh] sticky flex items-center justify-center w-full"
-      style={{ top: `calc(5.5rem + ${index * 32}px)` }}
+      className="h-[100vh] sticky top-0 flex items-center justify-center w-full origin-top"
     >
       <motion.div
-        style={{ scale }}
-        className={`w-full max-w-5xl rounded-[30px] sm:rounded-[40px] md:rounded-[48px] border border-[#c8c7c1] bg-[#d5d4ce] p-4 sm:p-5 md:p-6 shadow-2xl overflow-hidden relative group/card transition-colors duration-500 ${themeBorderHover[index]}`}
+        style={{ scale, opacity, y }}
+        className="w-full h-[85vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border border-[#c8c7c1] bg-[#f7f6f2] p-6 md:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative group/card flex flex-col will-change-transform"
       >
         <div
-          className="absolute inset-0 opacity-0 group-hover/card:opacity-100 transition-opacity duration-700 pointer-events-none z-0"
+          className="absolute inset-0 pointer-events-none z-0"
           style={{ background: themeGlows[index] }}
         />
 
-        <div className="relative z-10 flex flex-col h-full justify-between">
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-4 md:mb-5">
-            <span
-              className="font-black leading-none select-none text-[#111111]/10"
-              style={{ fontSize: "clamp(2rem, 6vw, 80px)" }}
+        <div className={`relative z-10 flex flex-col h-full gap-8 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+          
+          {/* Text Content Block */}
+          <div className="flex flex-col flex-1 justify-center gap-6">
+            <motion.div 
+              initial={{ opacity: 0, x: isEven ? -20 : 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex items-center gap-4 mb-2"
             >
-              {project.num}
-            </span>
-            <div className="flex-1 flex flex-col gap-2">
+              <span
+                className="font-black leading-none text-[#111111]/5 tabular-nums"
+                style={{ fontSize: "clamp(3rem, 8vw, 100px)" }}
+              >
+                {project.num}
+              </span>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[#444444] text-xs uppercase tracking-widest font-semibold border border-[#b4b3ad] rounded-full px-3 py-1 bg-[#111111]/5">
+                <span className="text-[#333333] text-[11px] uppercase tracking-[0.2em] font-bold border border-[#c8c7c1] rounded-full px-4 py-1.5 bg-white/50">
                   {project.category}
                 </span>
-                {project.stack.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-[10px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-[#111111]/5 text-[#444444] border border-[#111111]/10"
-                  >
-                    {tag}
-                  </span>
-                ))}
               </div>
-              <h3 className="text-xl md:text-2xl lg:text-3xl font-black text-[#111111] leading-tight">
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <h3 className="text-3xl md:text-5xl font-black text-[#111111] leading-[1.1] tracking-tight mb-4 text-balance">
                 {project.title}
               </h3>
-              <p className="text-sm text-[#444444] leading-relaxed max-w-lg font-medium">
+              <p className="text-[17px] text-[#555555] leading-[1.6] max-w-md font-medium">
                 {project.blurb}
               </p>
-            </div>
+            </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="flex flex-wrap gap-2 mt-2"
+            >
+              {project.stack.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[12px] font-semibold px-3 py-1 rounded-[8px] bg-black/5 text-[#333333]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="mt-4"
+            >
               <a
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:flex items-center gap-2 rounded-full border border-[#b4b3ad] px-5 py-2.5 text-[#111111] text-xs font-bold uppercase tracking-widest hover:bg-[#111111]/10 hover:border-[#111111] hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 w-fit flex-shrink-0"
+                className="group/btn inline-flex items-center gap-3 rounded-full bg-[#111111] px-6 py-3.5 text-white text-[13px] font-bold uppercase tracking-widest hover:bg-[#222222] transition-colors duration-300"
               >
-                View
-                <ExternalLink className="w-3.5 h-3.5" />
+                View Case Study
+                <div className="overflow-hidden relative w-4 h-4">
+                  <ExternalLink className="w-4 h-4 absolute top-0 left-0 transition-transform duration-300 group-hover/btn:translate-x-4 group-hover/btn:-translate-y-4" />
+                  <ExternalLink className="w-4 h-4 absolute top-0 left-0 -translate-x-4 translate-y-4 transition-transform duration-300 group-hover/btn:translate-x-0 group-hover/btn:translate-y-0" />
+                </div>
               </a>
+            </motion.div>
           </div>
 
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            className="flex gap-3 md:gap-4 project-hover-card group/img overflow-hidden"
-          >
-            <div
-              className="flex flex-col gap-3 md:gap-4"
-              style={{ width: "40%" }}
+          {/* Cinematic Image Composition */}
+          <div className="flex-1 relative h-full min-h-[300px] flex items-center justify-center">
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute inset-0 w-full h-full flex gap-4 p-4 group/img"
             >
-              <div
-                className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
-                style={{ height: "clamp(90px, 12vw, 170px)" }}
-              >
-                <Image
-                  ref={img1Ref}
-                  src={project.images[0]}
-                  alt={`${project.title} 1`}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                  className="object-cover"
-                  style={{
-                    transform: "scale(1.08) translate3d(0px, 0px, 0)",
-                    transition: "transform 0.15s ease-out",
-                    willChange: "transform",
-                  }}
-                />
+              <div className={`flex flex-col gap-4 ${isEven ? 'w-[40%]' : 'w-[60%]'} h-full justify-center`}>
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                  className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc]"
+                  style={{ height: isEven ? "45%" : "100%" }}
+                >
+                  <Image
+                    src={project.images[isEven ? 0 : 2]}
+                    alt={`${project.title} screenshot 1`}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
+                  />
+                </motion.div>
+                {isEven && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                    whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                    className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc] h-[55%]"
+                  >
+                    <Image
+                      src={project.images[1]}
+                      alt={`${project.title} screenshot 2`}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
+                    />
+                  </motion.div>
+                )}
               </div>
-              <div
-                className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80"
-                style={{ height: "clamp(120px, 18vw, 250px)" }}
-              >
-                <Image
-                  ref={img2Ref}
-                  src={project.images[1]}
-                  alt={`${project.title} 2`}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                  className="object-cover"
-                  style={{
-                    transform: "scale(1.08) translate3d(0px, 0px, 0)",
-                    transition: "transform 0.15s ease-out",
-                    willChange: "transform",
-                  }}
-                />
+              
+              <div className={`flex flex-col gap-4 ${isEven ? 'w-[60%]' : 'w-[40%]'} h-full justify-center`}>
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, x: isEven ? 20 : -20 }}
+                  whileInView={{ opacity: 1, scale: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                  className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc]"
+                  style={{ height: isEven ? "100%" : "45%" }}
+                >
+                  <Image
+                    src={project.images[isEven ? 2 : 0]}
+                    alt={`${project.title} screenshot 3`}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
+                  />
+                </motion.div>
+                {!isEven && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, x: -20 }}
+                    whileInView={{ opacity: 1, scale: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                    className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc] h-[55%]"
+                  >
+                    <Image
+                      src={project.images[1]}
+                      alt={`${project.title} screenshot 4`}
+                      fill
+                      loading="lazy"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
+                    />
+                  </motion.div>
+                )}
               </div>
-            </div>
-            <div className="relative flex-1 overflow-hidden rounded-[20px] sm:rounded-[28px] md:rounded-[32px] bg-zinc-950/80">
-              <Image
-                ref={img3Ref}
-                src={project.images[2]}
-                alt={`${project.title} 3`}
-                fill
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover"
-                style={{
-                  transform: "scale(1.08) translate3d(0px, 0px, 0)",
-                  transition: "transform 0.15s ease-out",
-                  willChange: "transform",
-                }}
-              />
-            </div>
-          </a>
+            </a>
+          </div>
         </div>
       </motion.div>
     </div>
@@ -499,17 +532,18 @@ const staggerContainer = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
+      staggerChildren: 0.05,
     },
   },
 };
 
 const staggerItem = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 15, scale: 0.98 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring" as const, stiffness: 100, damping: 20 },
+    scale: 1,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
 };
 
@@ -517,82 +551,164 @@ function Skills() {
   return (
     <section
       id="about"
-      className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1] shadow-[0_-30px_60px_rgba(0,0,0,0.75)]"
+      className="relative z-10 w-full pt-40 pb-24 md:pb-32"
     >
-      <div className="max-w-7xl mx-auto px-6 py-24 md:py-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12">
-          {/* ABOUT / SKILLS */}
-          <div>
-            <SectionHeader
-              eyebrow="About"
-              title="What I work with"
-              intro="Tools I reach for daily — comfortable across the full stack: design, code, and deploy."
-            />
+      {/* 
+        SEAMLESS TRANSITION
+        Fades from transparent (showing the hero behind) to solid background.
+        This completely eliminates the abrupt hard-cut border.
+      */}
+      <div className="absolute top-0 inset-x-0 h-[50vh] bg-gradient-to-b from-transparent to-[#e3e2dc] pointer-events-none" />
+      <div className="absolute top-[50vh] inset-x-0 bottom-0 bg-[#e3e2dc] pointer-events-none" />
+
+      {/* 
+        PERFORMANCE OPTIMIZED LIGHTING
+        Replaced active scroll-bound transforms on large background gradients with static layers.
+        Translating massive radial gradients over WebGL canvas causes fill-rate choking.
+      */}
+      <div 
+        className="absolute top-[20vh] left-[-10%] w-[60vw] h-[60vw] max-w-[800px] max-h-[800px] pointer-events-none" 
+        style={{
+          background: "radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)"
+        }}
+      />
+      <div 
+        className="absolute bottom-[10vh] right-[-10%] w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] pointer-events-none" 
+        style={{
+          background: "radial-gradient(circle, rgba(217,119,6,0.05) 0%, transparent 70%)"
+        }}
+      />
+      
+      {/* Barely noticeable, static grain texture - Optimized to avoid mix-blend-mode composite bottlenecks */}
+      <div 
+        className="absolute top-[20vh] inset-x-0 bottom-0 opacity-[0.008] pointer-events-none"
+        style={{ 
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+        }} 
+      />
+
+      <div className="max-w-[90rem] mx-auto px-8 relative z-20 mt-[55vh]">
+        
+        {/* ── SKILLS / TOOLS ── */}
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 mb-32 md:mb-48">
+          <div className="lg:w-[40%] flex flex-col items-start">
+            <motion.h2 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-[#111111] leading-[1.05] text-balance"
+            >
+              Crafting <br className="hidden lg:block"/> experiences.
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: 0.15, duration: 0.6 }}
+              className="mt-6 text-[17px] text-[#555555] font-medium max-w-sm leading-[1.5]"
+            >
+              The curated toolkit I rely on daily to design, architect, and ship high-end digital products.
+            </motion.p>
+          </div>
+          
+          <div className="lg:w-[60%] pt-4 lg:pt-0">
             <motion.div 
               variants={staggerContainer}
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-50px" }}
-              className="mt-14 grid grid-cols-2 gap-px bg-[#c8c7c1] rounded-2xl overflow-hidden border border-[#c8c7c1]"
+              className="flex flex-col gap-10 w-full"
             >
               {SKILLS.map((group) => (
-                <motion.div
-                  key={group.group}
-                  variants={staggerItem}
-                  className="bg-[#e3e2dc] p-6 md:p-7 flex flex-col gap-4"
-                >
-                  <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.14em] text-indigo-400">
-                    <Code2 className="w-3.5 h-3.5" />
-                    {group.group}
-                  </div>
-                  <ul className="flex flex-col gap-1.5">
-                    {group.items.map((item) => (
-                      <li
-                        key={item}
-                        className="text-[14px] text-[#111111] leading-snug"
+                <div key={group.group} className="flex flex-col gap-4">
+                  <span className="text-[12px] font-bold tracking-[0.15em] text-[#888888] uppercase pl-1">{group.group}</span>
+                  <div className="flex flex-wrap gap-2.5 items-center">
+                    {group.items.map((skill) => (
+                      <motion.div
+                        key={skill}
+                        variants={staggerItem}
+                        whileHover={{ y: -3, scale: 1.02 }}
+                        className="px-5 py-2.5 rounded-[12px] bg-[#f7f6f2] border border-[#d5d4ce] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] text-[#222222] font-semibold text-[14px] cursor-default will-change-transform transition-colors transition-shadow duration-300 hover:bg-[#ffffff] hover:border-[#b4b3ad] hover:shadow-[0_8px_16px_-6px_rgba(0,0,0,0.08)]"
                       >
-                        {item}
-                      </li>
+                        {skill}
+                      </motion.div>
                     ))}
-                  </ul>
-                </motion.div>
+                  </div>
+                </div>
               ))}
             </motion.div>
           </div>
+        </div>
 
-          {/* EXPERIENCE */}
-          <div>
-            <SectionHeader
-              eyebrow="Experience"
-              title="Where I&apos;ve been"
-              intro="Communities, teams, and active involvement."
+        {/* ── EXPERIENCE / TIMELINE ── */}
+        <div className="flex flex-col lg:flex-row-reverse gap-12 lg:gap-24">
+          <div className="lg:w-[40%] flex flex-col items-start">
+            <motion.h2 
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-[#111111] leading-[1.05] text-balance"
+            >
+              Where I&apos;ve <br className="hidden lg:block"/> been.
+            </motion.h2>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: 0.15, duration: 0.6 }}
+              className="mt-6 text-[17px] text-[#555555] font-medium max-w-sm leading-[1.5]"
+            >
+              Communities, teams, and milestones that have shaped my perspective and approach to engineering.
+            </motion.p>
+          </div>
+
+          <div className="lg:w-[60%] relative mt-8 lg:mt-0">
+            {/* Elegant continuous timeline line */}
+            <motion.div 
+              initial={{ height: 0 }}
+              whileInView={{ height: "100%" }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+              className="absolute left-[27px] top-4 w-[1px] bg-gradient-to-b from-amber-500/40 via-[#111111]/10 to-transparent" 
             />
+            
             <motion.div 
               variants={staggerContainer}
               initial="hidden"
               whileInView="show"
-              viewport={{ once: true, margin: "-50px" }}
-              className="mt-14 flex flex-col gap-4"
+              viewport={{ once: true, margin: "-100px" }}
+              className="flex flex-col gap-6"
             >
               {[
-                "Member of PSG iTech Software Development Cell",
-                "GDG PSG iTech active member",
-                "Coding Club member",
-              ].map((item, idx) => (
+                { title: "Member", org: "PSG iTech Software Development Cell" },
+                { title: "Active Member", org: "GDG PSG iTech" },
+                { title: "Member", org: "Coding Club" }
+              ].map((exp, idx) => (
                 <motion.div
                   key={idx}
                   variants={staggerItem}
-                  className="flex items-start gap-4 bg-[#d5d4ce] p-6 rounded-2xl border border-[#c8c7c1] transition-colors hover:border-[#b4b3ad]"
+                  className="relative pl-16 group"
                 >
-                  <div className="mt-1.5 text-indigo-400 text-[10px]">●</div>
-                  <div className="text-[16px] font-medium text-[#111111] leading-snug">
-                    {item}
+                  {/* Timeline interactive dot */}
+                  <div className="absolute left-[23px] top-6 w-[9px] h-[9px] rounded-full bg-[#e3e2dc] border-[2px] border-[#888888] group-hover:bg-amber-500 group-hover:border-amber-500 group-hover:scale-[1.6] transition-all duration-300 z-10 will-change-transform" />
+                  
+                  {/* Refined Milestone Card - Tighter padding, stronger identity, no backdrop blur */}
+                  <div className="bg-[#f7f6f2] border border-[#d5d4ce] px-6 py-5 rounded-[16px] shadow-[0_2px_12px_-6px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] group-hover:-translate-y-0.5 group-hover:bg-[#ffffff] group-hover:border-[#c8c7c1] transition-all duration-400 will-change-transform">
+                    <span className="text-[11px] font-bold tracking-[0.2em] text-amber-600 uppercase mb-1.5 block">
+                      {exp.title}
+                    </span>
+                    <h3 className="text-[19px] md:text-[21px] font-bold text-[#111111] leading-tight tracking-tight">
+                      {exp.org}
+                    </h3>
                   </div>
                 </motion.div>
               ))}
             </motion.div>
           </div>
         </div>
+
       </div>
     </section>
   );

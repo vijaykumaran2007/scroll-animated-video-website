@@ -16,7 +16,7 @@ export default function LenisWrapper({
       gestureOrientation: "vertical",
       smoothWheel: true,
       wheelMultiplier: 1,
-      smoothTouch: false,
+      syncTouch: false,
       touchMultiplier: 2,
     });
 
