@@ -4,14 +4,14 @@
     --font-manrope: var(--font-manrope);
     --font-mono: var(--font-mono);
 
-    --color-bg: #e3e2dc;
-    --color-surface: #d5d4ce;
-    --color-surface-2: #d5d4ce;
-    --color-border: #c8c7c1;
-    --color-border-strong: #b4b3ad;
-    --color-ink: #111111;
-    --color-ink-muted: #444444;
-    --color-ink-dim: #666666;
+    --color-bg: #0B1F12;
+    --color-surface: #162A1E;
+    --color-surface-2: #162A1E;
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-border-strong: rgba(255, 255, 255, 0.2);
+    --color-ink: #F7F7F4;
+    --color-ink-muted: #A8B0A7;
+    --color-ink-dim: rgba(247, 247, 244, 0.4);
     --color-accent: #6366f1;
     --color-accent-soft: #818cf8;
     --color-accent-deep: #4338ca;

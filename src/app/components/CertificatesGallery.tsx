@@ -45,31 +45,35 @@ export const CERTIFICATIONS = [
 
 const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const rectRef = useRef<DOMRect | null>(null);
+
+  const handleMouseEnter = () => {
+    if (cardRef.current) {
+      rectRef.current = cardRef.current.getBoundingClientRect();
+      cardRef.current.style.willChange = 'transform'; // promote only during hover
+    }
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
+    const el = cardRef.current;
+    const rect = rectRef.current;
+    if (!el || !rect) return;
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     const rotateX = ((y - centerY) / centerY) * -3;
     const rotateY = ((x - centerX) / centerX) * 3;
-    gsap.to(cardRef.current, {
-      rotateX,
-      rotateY,
-      scale: 1.02,
-      y: -8,
-      boxShadow: "0 20px 40px rgba(245,158,11,0.08)",
-      duration: 0.4,
-      ease: "power2.out",
-      transformPerspective: 1000,
-    });
+    // Direct style write — no GSAP tween created per frame
+    el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02) translateY(-8px)`;
+    el.style.boxShadow = "0 20px 40px rgba(245,158,11,0.08)";
   };
 
   const handleMouseLeave = () => {
     if (!cardRef.current) return;
-    gsap.to(cardRef.current, {
+    rectRef.current = null;
+    const el = cardRef.current;
+    gsap.to(el, {
       rotateX: 0,
       rotateY: 0,
       scale: 1,
@@ -77,6 +81,7 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
       boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
       duration: 0.7,
       ease: "power3.out",
+      onComplete: () => { el.style.willChange = 'auto'; }, // demote after spring-back
     });
   };
 
@@ -85,7 +90,8 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
     <div className="cert-card-wrapper w-full">
       <div
         ref={cardRef}
-        className="group relative w-full flex flex-col overflow-hidden bg-white border border-black/5 cursor-pointer will-change-transform shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+        className="group relative w-full flex flex-col overflow-hidden bg-white border border-black/5 cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+        onMouseEnter={handleMouseEnter}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -132,45 +138,30 @@ export default function CertificatesGallery() {
     const ctx = gsap.context(() => {
 
       // ─── PHASE 1: ENTRANCE — rounded corners → sharp corners as section moves up ─
-      // As the section scrolls from the bottom of the viewport to the top,
-      // the panel morphs from a large rounded-corner card into a full-bleed sharp rectangle.
       const tlReveal = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top bottom",   // section bottom enters viewport
-          end: "top top",        // section top reaches viewport top → fully sharp
+          start: "top bottom",
+          end: "top top",
           scrub: 1,
         }
       });
 
-      // Round → sharp: starts smaller with large 120px corners, expands to full-bleed sharp
       tlReveal.fromTo(innerRef.current,
         {
-          clipPath: "inset(5% 10% 0% 10% round 200px)",
+          borderRadius: "120px",
           y: "12vh",
-          scale: 0.94,
-          filter: "brightness(0.6) contrast(1.1)"
+          scale: 0.85,
         },
         {
-          clipPath: "inset(0% 0% 0% 0% round 0px)",
+          borderRadius: "0px",
           y: "0vh",
           scale: 1,
-          filter: "brightness(1) contrast(1)",
           ease: "power2.inOut",
         }, 0
       );
 
-      // Parallax ambient layers
-      tlReveal.fromTo(bgVisualRef.current,
-        { y: "25vh", rotation: -15, opacity: 0 },
-        { y: "-5vh", rotation: 5, opacity: 0.8, ease: "none" },
-        0
-      );
-      tlReveal.fromTo(".layer-noise", { y: "0%" }, { y: "15%", ease: "none" }, 0);
-      tlReveal.fromTo(".layer-light-1", { y: "10%" }, { y: "-10%", ease: "none" }, 0);
-      tlReveal.fromTo(".layer-light-2", { y: "-10%" }, { y: "10%", ease: "none" }, 0);
-
-      // ─── PHASE 2: HEADER — fades in once section is on screen ─────────────────
+      // ─── PHASE 2: HEADER ─────────────────────────────────────────────────────────
       gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -193,8 +184,7 @@ export default function CertificatesGallery() {
           "-=0.8"
         );
 
-      // ─── PHASE 3: CARDS — set hidden first, then reveal via clip-path ─────────
-      // gsap.set ensures cards are hidden BEFORE render, avoiding flash
+      // ─── PHASE 3: CARDS ───────────────────────────────────────────────────────────
       gsap.set(".cert-card-wrapper", { clipPath: "inset(100% 0% 0% 0%)" });
 
       gsap.to(".cert-card-wrapper", {
@@ -204,33 +194,31 @@ export default function CertificatesGallery() {
         stagger: 0.18,
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top 20%",       // triggers once the section is mostly on screen
+          start: "top 20%",
           toggleActions: "play none none reverse",
         }
       });
 
-      // ─── PHASE 4: EXIT — sharp corners → rounded corners as section leaves ─
+      // ─── PHASE 4: EXIT ────────────────────────────────────────────────────────────
       const tlExit = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "bottom bottom",   // section bottom enters viewport
-          end: "bottom top",        // section bottom reaches viewport top
+          start: "bottom bottom",
+          end: "bottom top",
           scrub: 1,
         }
       });
 
       tlExit.fromTo(innerRef.current,
         {
-          clipPath: "inset(0% 0% 0% 0% round 0px)",
+          borderRadius: "0px",
           y: "0vh",
           scale: 1,
-          filter: "brightness(1) contrast(1)"
         },
         {
-          clipPath: "inset(0% 10% 5% 10% round 200px)",
+          borderRadius: "120px",
           y: "-12vh",
-          scale: 0.94,
-          filter: "brightness(0.6) contrast(1.1)",
+          scale: 0.85,
           ease: "power2.inOut",
         }, 0
       );
@@ -241,7 +229,7 @@ export default function CertificatesGallery() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full z-20 bg-transparent">
+    <section ref={containerRef} className="relative w-full z-20 bg-transparent" style={{ contain: 'layout paint' }}>
 
       {/* The black panel — starts as a small rounded rectangle and grows */}
       <div
@@ -251,16 +239,16 @@ export default function CertificatesGallery() {
         {/* Ambient background layers */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#e3e2dc] via-[#f7f6f2] to-[#e3e2dc] z-0" />
         <div
-          className="layer-noise absolute inset-0 opacity-[0.035] mix-blend-screen z-0 pointer-events-none will-change-transform"
+          className="layer-noise absolute inset-0 opacity-[0.035] z-0 pointer-events-none"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
         />
-        <div className="layer-light-1 absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none z-0 will-change-transform" />
-        <div className="layer-light-2 absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0 will-change-transform" />
+        <div className="layer-light-1 absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/10 blur-[80px] rounded-full pointer-events-none z-0" />
+        <div className="layer-light-2 absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none z-0" />
 
         {/* Abstract geometry parallax */}
         <div
           ref={bgVisualRef}
-          className="absolute top-[10%] right-[2%] w-[50vw] h-[50vw] max-w-[700px] border border-black/5 bg-gradient-to-br from-black/[0.03] to-transparent backdrop-blur-3xl rounded-[4rem] rotate-[20deg] pointer-events-none z-0 overflow-hidden shadow-[inset_0_0_80px_rgba(0,0,0,0.02)] will-change-transform"
+          className="absolute top-[10%] right-[2%] w-[50vw] h-[50vw] max-w-[700px] border border-black/5 bg-gradient-to-br from-black/[0.03] to-transparent rounded-[4rem] rotate-[20deg] pointer-events-none z-0 overflow-hidden will-change-transform"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/5 to-black/10 opacity-60" />
         </div>

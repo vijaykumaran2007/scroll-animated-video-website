@@ -16,10 +16,9 @@ const BITMAP_SCALE    = 0.75;
 // Creature sits at ~66 % from the left — remap so it faces the cursor.
 const GAZE_CENTER = 0.66;
 
-const isTouchDevice = () => {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(pointer: coarse)").matches;
-};
+// Cache once — never re-evaluated inside the draw loop
+const IS_TOUCH = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+const IS_MOBILE_WIDTH = typeof window !== "undefined" && window.innerWidth <= 768;
 
 // Curtain reveal — five full-height vertical columns sliding upward with a
 // gentle left-to-right stagger. Slightly slow so the lift feels cinematic.
@@ -40,6 +39,7 @@ export default function CreatureTracker() {
   const rafRef          = useRef<number | null>(null);
   const visibleRef      = useRef(true);
   const resizeRafRef    = useRef<number | null>(null);
+  const drawFnRef       = useRef<(() => void) | null>(null); // shared so input useEffect can wake it
 
   const [progress,     setProgress]     = useState(0);
   const [ready,        setReady]        = useState(false);
@@ -139,49 +139,57 @@ export default function CreatureTracker() {
     window.addEventListener("resize", resize);
 
     const observer = new IntersectionObserver(
-      ([entry]) => { visibleRef.current = entry.isIntersecting; },
+      ([entry]) => {
+        visibleRef.current = entry.isIntersecting;
+        // Restart RAF when scrolled back into view (it stops when not visible)
+        if (entry.isIntersecting && !rafRef.current && drawFnRef.current) {
+          rafRef.current = requestAnimationFrame(drawFnRef.current);
+        }
+      },
       { threshold: 0 }
     );
     observer.observe(canvas);
 
     const draw = () => {
-      rafRef.current = requestAnimationFrame(draw);
-      if (!visibleRef.current) return;
+      // Stop completely when off-screen — no wasted rAF budget
+      if (!visibleRef.current) {
+        rafRef.current = null;
+        return;
+      }
 
-      // ── LERP creature frame index ──
-      currentIdxRef.current +=
-        (targetIdxRef.current - currentIdxRef.current) * LERP_FACTOR;
+      const delta = targetIdxRef.current - currentIdxRef.current;
+      // Stop when settled — restart on next mouse/touch input
+      if (Math.abs(delta) < 0.01) {
+        rafRef.current = null;
+        return;
+      }
+      currentIdxRef.current += delta * LERP_FACTOR;
 
       const idx   = Math.round(currentIdxRef.current);
       const safe  = Math.min(Math.max(idx, 0), TOTAL_FRAMES - 1);
       const frame = framesRef.current[safe];
-      if (!frame) return;
+      if (!frame) { rafRef.current = requestAnimationFrame(draw); return; }
 
-      // Skip the full canvas redraw only when the creature frame hasn't changed.
-      if (safe === lastDrawnIdxRef.current) return;
+      if (safe === lastDrawnIdxRef.current) { rafRef.current = requestAnimationFrame(draw); return; }
       lastDrawnIdxRef.current = safe;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw creature frame
-
       let scaleX = canvas.width  / frame.width;
       let scaleY = canvas.height / frame.height;
-      let scale  = Math.max(scaleX, scaleY) * 0.85; // Make the creature slightly smaller
+      let scale  = Math.max(scaleX, scaleY) * 0.85;
 
       let x: number, y: number, w: number, h: number;
 
-      if (isTouchDevice()) {
+      if (IS_TOUCH || IS_MOBILE_WIDTH) {
         scale *= 1.5;
         w = frame.width  * scale;
         h = frame.height * scale;
-        x = (canvas.width - w) / 2;
-        y = canvas.height - h;
-      } else if (window.innerWidth <= 768) {
-        scale *= 1.5;
-        w = frame.width  * scale;
-        h = frame.height * scale;
-        x = (canvas.width / 2) - (w * GAZE_CENTER);
+        if (IS_MOBILE_WIDTH) {
+          x = (canvas.width / 2) - (w * GAZE_CENTER);
+        } else {
+          x = (canvas.width - w) / 2;
+        }
         y = canvas.height - h;
       } else {
         w = frame.width  * scale;
@@ -191,8 +199,11 @@ export default function CreatureTracker() {
       }
 
       ctx.drawImage(frame, x, y, w, h);
+      rafRef.current = requestAnimationFrame(draw);
     };
 
+    // Store reference so input useEffect can wake the loop
+    drawFnRef.current = draw;
     rafRef.current = requestAnimationFrame(draw);
 
     return () => {
@@ -215,6 +226,10 @@ export default function CreatureTracker() {
           : 0.5 + ((ratio - GAZE_CENTER) / (1 - GAZE_CENTER)) * 0.5;
       targetIdxRef.current =
         Math.min(Math.max(remapped, 0), 1) * (TOTAL_FRAMES - 1);
+      // Wake the RAF loop if it stopped (settled or out of view came back)
+      if (visibleRef.current && !rafRef.current && drawFnRef.current) {
+        rafRef.current = requestAnimationFrame(drawFnRef.current);
+      }
     };
 
     const onMouse = (e: MouseEvent) =>
@@ -238,7 +253,7 @@ export default function CreatureTracker() {
     };
 
     const tryGyro = async () => {
-      if (!isTouchDevice()) return;
+      if (!IS_TOUCH) return;
       if (
         typeof window !== "undefined" &&
         typeof (window as any).DeviceOrientationEvent !== "undefined" &&
