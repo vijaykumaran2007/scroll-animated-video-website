@@ -209,6 +209,32 @@ export default function CertificatesGallery() {
         }
       });
 
+      // ─── PHASE 4: EXIT — sharp corners → rounded corners as section leaves ─
+      const tlExit = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "bottom bottom",   // section bottom enters viewport
+          end: "bottom top",        // section bottom reaches viewport top
+          scrub: 1,
+        }
+      });
+
+      tlExit.fromTo(innerRef.current,
+        {
+          clipPath: "inset(0% 0% 0% 0% round 0px)",
+          y: "0vh",
+          scale: 1,
+          filter: "brightness(1) contrast(1)"
+        },
+        {
+          clipPath: "inset(0% 10% 5% 10% round 200px)",
+          y: "-12vh",
+          scale: 0.94,
+          filter: "brightness(0.6) contrast(1.1)",
+          ease: "power2.inOut",
+        }, 0
+      );
+
     }, containerRef);
 
     return () => ctx.revert();

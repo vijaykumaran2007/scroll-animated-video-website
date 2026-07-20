@@ -12,9 +12,14 @@ import {
   ExternalLink,
   Copy,
 } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import CreatureTracker from "./components/CreatureTracker";
 import WorkGallery from "./components/WorkGallery";
 import CertificatesGallery from "./components/CertificatesGallery";
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* Inline brand icons. This version of lucide-react does not expose
    GitHub / LinkedIn names, so we hand-roll SVG paths that match the
@@ -684,64 +689,352 @@ function Skills() {
 /* ---------- CONTACT ------------------------------------------------------- */
 
 function Contact() {
+  const sectionRef    = useRef<HTMLElement>(null);
+  const stickyRef     = useRef<HTMLDivElement>(null);
+  const bgTextRef     = useRef<HTMLSpanElement>(null);
+  const spotlightRef  = useRef<HTMLDivElement>(null);
+  const eyebrowRef    = useRef<HTMLParagraphElement>(null);
+  const headingRef    = useRef<HTMLHeadingElement>(null);
+  const descRef       = useRef<HTMLParagraphElement>(null);
+  const emailCardRef  = useRef<HTMLDivElement>(null);
+  const ghCardRef     = useRef<HTMLAnchorElement>(null);
+  const liCardRef     = useRef<HTMLAnchorElement>(null);
+  const closingRef    = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText("vijaykumaran2007@gmail.com");
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 2500);
   };
 
-  return (
-    <section className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1]">
-      <div className="max-w-5xl mx-auto px-6 py-24 md:py-32">
-        <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-12 md:items-center">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400 mb-5">
-              Contact
-            </p>
-            <h2 className="text-[clamp(2rem,4.4vw,3.5rem)] font-semibold tracking-[-0.02em] leading-[1.05] text-[#111111] text-balance">
-              Have a project, an internship opportunity, or just want to talk Flutter?
-            </h2>
-            <p className="mt-5 text-[16px] leading-[1.6] text-[#444444] max-w-md">
-              I&apos;m open to internships, hackathon teams, and interesting
-              collaborations. Email is the fastest way to reach me.
-            </p>
-          </div>
+  useGSAP(() => {
+    const section  = sectionRef.current;
+    const sticky   = stickyRef.current;
+    const bgText   = bgTextRef.current;
+    const spotlight = spotlightRef.current;
+    if (!section || !sticky) return;
 
-          <div className="flex flex-col gap-4 md:items-end">
-            <button
-              onClick={handleCopy}
-              className="group inline-flex items-center justify-between gap-4 bg-[#111111] text-[#e3e2dc] rounded-full px-6 py-4 font-semibold text-[15px] hover:bg-indigo-400 hover:text-[#e0e7ff] active:translate-y-[1px] transition-colors md:w-fit"
-            >
-              {copied ? "Copied to clipboard!" : "vijaykumaran2007@gmail.com"}
-              {!copied && <Copy className="w-4 h-4 group-hover:scale-110 transition-transform" />}
-            </button>
-            <div className="flex flex-wrap items-center gap-4 mt-1">
+    // ─── CURSOR SPOTLIGHT (lerp in GSAP ticker, zero re-renders) ───
+    let mx = 0, my = 0, cx = 0, cy = 0;
+    const onMouse = (e: MouseEvent) => { mx = e.clientX; my = e.clientY; };
+    window.addEventListener("mousemove", onMouse, { passive: true });
+    const ticker = gsap.ticker.add(() => {
+      cx += (mx - cx) * 0.06;
+      cy += (my - cy) * 0.06;
+      if (spotlight) {
+        gsap.set(spotlight, { x: cx - 300, y: cy - 300 });
+      }
+    });
+
+    // ─── ENTRANCE ANIMATIONS ───
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top 70%",
+      }
+    });
+
+    // BG text fades in first
+    tl.fromTo(bgText, { opacity: 0, y: 30 }, { opacity: 0.04, y: 0, duration: 1.4, ease: "power3.out" }, 0);
+    // Eyebrow
+    tl.fromTo(eyebrowRef.current, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.3);
+    // Heading lines one by one
+    const lines = headingRef.current?.querySelectorAll(".line-inner");
+    if (lines) {
+      tl.fromTo(lines,
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.85, stagger: 0.12, ease: "power3.out" },
+        0.45
+      );
+    }
+    // Description
+    tl.fromTo(descRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.85);
+    // Email card
+    tl.fromTo(emailCardRef.current,
+      { opacity: 0, y: 28, scale: 0.97 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: "power3.out" },
+      0.65
+    );
+    // Social cards staggered
+    tl.fromTo([ghCardRef.current, liCardRef.current],
+      { opacity: 0, y: 22 },
+      { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power3.out" },
+      0.9
+    );
+
+    // ─── SCROLL PARALLAX (different speeds per layer) ───
+    // Background text — very slow (≈15% scroll speed = moves 15px per 100px scroll)
+    gsap.to(bgText, {
+      y: "-8%",
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 1.5,
+      }
+    });
+
+    // Email card — slightly faster than viewport scroll
+    gsap.to(emailCardRef.current, {
+      y: -12,
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 2,
+      }
+    });
+
+    // Social cards — slightly different
+    gsap.to([ghCardRef.current, liCardRef.current], {
+      y: -8,
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        start: "top bottom",
+        end: "bottom top",
+        scrub: 2.5,
+      }
+    });
+
+    // ─── CINEMATIC EXIT SEQUENCE (scroll through 150vh container) ───
+    const exitTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1.2,
+      }
+    });
+
+    // 0–50% of scroll: everything stable
+    // 50–65%: social cards fade down
+    exitTl.to([ghCardRef.current, liCardRef.current], { opacity: 0, y: 24, ease: "power2.in" }, 0.5);
+    // 55–70%: description fades
+    exitTl.to(descRef.current, { opacity: 0, y: 10, ease: "power2.in" }, 0.55);
+    // 60–75%: heading and eyebrow fade
+    exitTl.to([eyebrowRef.current, headingRef.current], { opacity: 0, y: -10, ease: "power2.in" }, 0.62);
+    // 68–80%: email card fades last among primary
+    exitTl.to(emailCardRef.current, { opacity: 0, scale: 0.97, ease: "power2.in" }, 0.7);
+    // 72–85%: bg text fades
+    exitTl.to(bgText, { opacity: 0, ease: "power2.in" }, 0.72);
+    // 80–95%: closing statement rises in
+    exitTl.fromTo(closingRef.current,
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, ease: "power3.out" },
+      0.82
+    );
+
+    return () => {
+      window.removeEventListener("mousemove", onMouse);
+      gsap.ticker.remove(ticker);
+    };
+  }, { scope: sectionRef });
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative z-10 border-t border-[#c8c7c1] bg-[#e3e2dc]"
+      style={{ height: "250vh" }}
+    >
+      <style jsx global>{`
+        @keyframes contact-pulse {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50%       { transform: scale(2.2); opacity: 0; }
+        }
+        .contact-pulse { animation: contact-pulse 2.8s ease-out infinite; }
+      `}</style>
+
+      <div ref={stickyRef} className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+
+        {/* ── LAYER 0: Ambient vignette ── */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_0%,rgba(0,0,0,0.05)_100%)] pointer-events-none z-0" />
+
+        {/* ── LAYER 0: Grain texture ── */}
+        <div
+          className="absolute inset-0 opacity-[0.03] mix-blend-multiply pointer-events-none z-0"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }}
+        />
+
+        {/* ── LAYER 0: Cursor spotlight ── */}
+        <div
+          ref={spotlightRef}
+          className="absolute w-[600px] h-[600px] pointer-events-none z-0 rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)" }}
+        />
+
+        {/* ── LAYER 1: Oversized BG typography (parallax at ~15% speed) ── */}
+        <span
+          ref={bgTextRef}
+          className="absolute select-none pointer-events-none z-0 font-black leading-none tracking-tighter whitespace-nowrap opacity-0"
+          style={{ fontSize: "clamp(6rem,18vw,18rem)", color: "rgba(0,0,0,0.04)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+        >
+          LET&apos;S BUILD
+        </span>
+
+        {/* ── LAYER 2: Ambient radial glow behind heading ── */}
+        <div className="absolute top-1/2 left-[25%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-white/25 blur-[100px] rounded-full pointer-events-none z-0" />
+
+        {/* ── LAYER 3: Foreground content ── */}
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-6 md:px-12">
+          <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-16 lg:gap-28 md:items-center">
+
+            {/* LEFT: Typography */}
+            <div>
+              <p
+                ref={eyebrowRef}
+                className="font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-500 font-bold mb-7 opacity-0"
+              >
+                Contact
+              </p>
+
+              <h2
+                ref={headingRef}
+                className="text-[clamp(2rem,4.2vw,3.4rem)] font-bold tracking-tight leading-[1.08] text-[#111111] text-balance mb-7"
+              >
+                {["Have a project,", "an internship opportunity,", "or just want to talk Flutter?"].map((line, i) => (
+                  <div key={i} className="overflow-hidden py-0.5">
+                    <div className="line-inner" style={{ opacity: 0 }}>{line}</div>
+                  </div>
+                ))}
+              </h2>
+
+              <p
+                ref={descRef}
+                className="text-[17px] leading-[1.75] text-[#555555] max-w-md font-medium opacity-0"
+              >
+                I&apos;m open to internships, hackathon teams, and interesting collaborations. Email is the fastest way to reach me.
+              </p>
+            </div>
+
+            {/* RIGHT: Interactive cards */}
+            <div className="flex flex-col gap-5">
+
+              {/* Email focal card */}
+              <div
+                ref={emailCardRef}
+                onClick={handleCopy}
+                className="relative group cursor-pointer rounded-[20px] opacity-0 will-change-transform"
+              >
+                {/* Outer glow on hover */}
+                <div className="absolute -inset-[1px] rounded-[21px] bg-gradient-to-br from-white/60 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                {/* Glass surface */}
+                <div className="relative rounded-[20px] bg-white/35 backdrop-blur-[12px] border border-white/55 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.7)] p-6 md:p-7 group-hover:-translate-y-[5px] group-hover:shadow-[0_20px_48px_-12px_rgba(0,0,0,0.12)] transition-all duration-300 overflow-hidden will-change-transform">
+
+                  {/* Top glare line */}
+                  <div className="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-white to-transparent opacity-70" />
+
+                  {/* Status row */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="contact-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-500" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                      </span>
+                      <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#444444]">
+                        Available for internships &amp; collabs
+                      </span>
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-[#888888] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 flex-shrink-0" />
+                  </div>
+
+                  {/* Email + copy */}
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[1.25rem] md:text-[1.45rem] font-bold text-[#111111] tracking-tight leading-tight break-all">
+                      vijaykumaran2007@gmail.com
+                    </span>
+                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-[#111111]/6 group-hover:bg-[#111111]/10 rounded-full border border-[#111111]/8 transition-colors duration-300">
+                      <Copy className="w-[15px] h-[15px] text-[#333333]" />
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-[11px] text-[#888888] font-medium">Click to copy address</p>
+                </div>
+              </div>
+
+              {/* GitHub card */}
               <a
+                ref={ghCardRef}
                 href="https://github.com/vijaykumaran2007"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#b4b3ad] text-[#444444] hover:text-[#111111] hover:border-[#111111] transition-colors font-medium text-[15px]"
+                className="group flex items-center gap-4 rounded-[16px] bg-white/25 backdrop-blur-[8px] border border-white/45 shadow-[0_2px_12px_-6px_rgba(0,0,0,0.06)] p-4 md:p-5 hover:-translate-y-1 hover:bg-white/40 hover:shadow-[0_10px_28px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 will-change-transform opacity-0 overflow-hidden relative"
               >
-                <GithubIcon className="w-5 h-5" />
-                GitHub
+                <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 flex-shrink-0 w-10 h-10 bg-[#111111] text-white rounded-[10px] flex items-center justify-center group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300 shadow-sm">
+                  <GithubIcon className="w-[18px] h-[18px]" />
+                </div>
+                <div className="relative z-10 flex flex-col">
+                  <span className="font-bold text-[#111111] text-[15px] leading-tight">GitHub</span>
+                  <span className="text-[12px] text-[#666666] font-medium mt-0.5 flex items-center gap-1 group-hover:text-[#333333] transition-colors duration-200">
+                    Explore projects
+                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                  </span>
+                </div>
               </a>
+
+              {/* LinkedIn card */}
               <a
+                ref={liCardRef}
                 href="https://linkedin.com/in/vijay-adithiya"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full border border-[#b4b3ad] text-[#444444] hover:text-[#111111] hover:border-[#111111] transition-colors font-medium text-[15px]"
+                className="group flex items-center gap-4 rounded-[16px] bg-white/25 backdrop-blur-[8px] border border-white/45 shadow-[0_2px_12px_-6px_rgba(0,0,0,0.06)] p-4 md:p-5 hover:-translate-y-1 hover:bg-white/40 hover:shadow-[0_10px_28px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 will-change-transform opacity-0 overflow-hidden relative"
               >
-                <LinkedinIcon className="w-5 h-5" />
-                LinkedIn
+                <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative z-10 flex-shrink-0 w-10 h-10 bg-[#111111] text-white rounded-[10px] flex items-center justify-center group-hover:scale-105 group-hover:-rotate-3 transition-transform duration-300 shadow-sm">
+                  <LinkedinIcon className="w-[18px] h-[18px]" />
+                </div>
+                <div className="relative z-10 flex flex-col">
+                  <span className="font-bold text-[#111111] text-[15px] leading-tight">LinkedIn</span>
+                  <span className="text-[12px] text-[#666666] font-medium mt-0.5 flex items-center gap-1 group-hover:text-[#333333] transition-colors duration-200">
+                    Let&apos;s connect
+                    <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                  </span>
+                </div>
               </a>
             </div>
           </div>
         </div>
+
+        {/* ── LAYER 4: Cinematic closing statement ── */}
+        <div
+          ref={closingRef}
+          className="absolute inset-0 flex items-center justify-center px-8 pointer-events-none z-20 opacity-0"
+        >
+          <div className="text-center">
+            <p className="text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight text-[#111111] leading-[1.1] text-balance">
+              Let&apos;s build something<br />meaningful.
+            </p>
+            <p className="mt-5 text-[16px] text-[#888888] font-medium tracking-wide">
+              Thanks for scrolling.
+            </p>
+          </div>
+        </div>
+
       </div>
+
+      {/* ── Toast ── */}
+      <AnimatePresence>
+        {copied && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 bg-[#111111]/92 backdrop-blur-md text-white pl-3.5 pr-5 py-2.5 rounded-full text-[13px] font-semibold shadow-[0_16px_40px_-8px_rgba(0,0,0,0.35)] border border-white/10"
+          >
+            <div className="flex items-center justify-center w-5 h-5 bg-emerald-500/20 rounded-full">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><polyline points="20 6 9 17 4 12" /></svg>
+            </div>
+            Email copied to clipboard
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
