@@ -8,7 +8,6 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Chronological timeline of achievements
 export const CERTIFICATIONS = [
   {
     name: "Python Programming Foundation",
@@ -44,54 +43,115 @@ export const CERTIFICATIONS = [
   },
 ] as const;
 
+const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -3;
+    const rotateY = ((x - centerX) / centerX) * 3;
+    gsap.to(cardRef.current, {
+      rotateX,
+      rotateY,
+      scale: 1.02,
+      y: -8,
+      boxShadow: "0 20px 40px rgba(245,158,11,0.08)",
+      duration: 0.4,
+      ease: "power2.out",
+      transformPerspective: 1000,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    gsap.to(cardRef.current, {
+      rotateX: 0,
+      rotateY: 0,
+      scale: 1,
+      y: 0,
+      boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+      duration: 0.7,
+      ease: "power3.out",
+    });
+  };
+
+  return (
+    // Wrapper has NO initial clip-path — GSAP sets it via gsap.set before animating
+    <div className="cert-card-wrapper w-full">
+      <div
+        ref={cardRef}
+        className="group relative w-full flex flex-col overflow-hidden bg-[#111113] border border-white/5 cursor-pointer will-change-transform shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#0a0a0c]">
+          <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-black/20 z-10 pointer-events-none" />
+          <Image
+            src={cert.image}
+            alt={cert.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500"
+          />
+        </div>
+        <div className="flex flex-col flex-1 p-8 md:p-10">
+          <div className="flex items-center gap-4 mb-5">
+            <span className="text-[11px] font-bold tracking-[0.2em] text-amber-500 uppercase">{cert.year}</span>
+            <span className="w-1 h-1 rounded-full bg-white/10" />
+            <span className="text-[11px] font-bold tracking-[0.2em] text-white/40 uppercase">{cert.issuer}</span>
+          </div>
+          <h3 className="text-2xl font-medium text-white mb-3 tracking-tight text-balance leading-[1.2]">
+            {cert.name}
+          </h3>
+          <p className="text-[15px] text-[#888888] leading-relaxed font-medium text-balance mt-auto">
+            {cert.description}
+          </p>
+          <div className="mt-8">
+            <button className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white transition-colors group/btn opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 duration-500">
+              View Certificate
+              <div className="w-8 h-[1px] bg-white/30 group-hover/btn:bg-white group-hover/btn:w-12 transition-all duration-300" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function CertificatesGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const bgVisualRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const ctx = gsap.context(() => {
-      const projects = document.getElementById("projects");
-      
-      // 1. Cinematic Transition Sequence (Receding Projects)
+
+      // ─── PHASE 1: ENTRANCE — rounded corners → sharp corners as section moves up ─
+      // As the section scrolls from the bottom of the viewport to the top,
+      // the panel morphs from a large rounded-corner card into a full-bleed sharp rectangle.
       const tlReveal = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top bottom",
-          end: "top top",
-          scrub: true,
+          start: "top bottom",   // section bottom enters viewport
+          end: "top top",        // section top reaches viewport top → fully sharp
+          scrub: 1,
         }
       });
 
-      if (projects) {
-        ScrollTrigger.create({
-          trigger: containerRef.current,
-          start: "top bottom",
-          end: "top top",
-          pin: projects,
-          pinSpacing: false,
-        });
-
-        tlReveal.to(projects, {
+      // Round → sharp: starts smaller with large 120px corners, expands to full-bleed sharp
+      tlReveal.fromTo(innerRef.current,
+        {
+          clipPath: "inset(5% 10% 0% 10% round 200px)",
+          y: "12vh",
           scale: 0.94,
-          scaleY: 0.96,
-          y: "-10vh",
-          opacity: 0,
-          filter: "blur(4px)",
-          ease: "none",
-        }, 0);
-      }
-
-      // 2. New Scene Entrance & Parallax Layers
-      tlReveal.fromTo(innerRef.current, 
-        { 
-          clipPath: "inset(20% 5% 0% 5% round 48px)",
-          y: "15vh",
-          scale: 0.98,
           filter: "brightness(0.6) contrast(1.1)"
         },
-        { 
+        {
           clipPath: "inset(0% 0% 0% 0% round 0px)",
           y: "0vh",
           scale: 1,
@@ -100,225 +160,109 @@ export default function CertificatesGallery() {
         }, 0
       );
 
-      // Parallax geometry (abstract paper/glass shape)
+      // Parallax ambient layers
       tlReveal.fromTo(bgVisualRef.current,
         { y: "25vh", rotation: -15, opacity: 0 },
         { y: "-5vh", rotation: 5, opacity: 0.8, ease: "none" },
         0
       );
-      
-      // Ambient Lighting and Noise drift independently
       tlReveal.fromTo(".layer-noise", { y: "0%" }, { y: "15%", ease: "none" }, 0);
       tlReveal.fromTo(".layer-light-1", { y: "10%" }, { y: "-10%", ease: "none" }, 0);
       tlReveal.fromTo(".layer-light-2", { y: "-10%" }, { y: "10%", ease: "none" }, 0);
 
-      // 3. Staggered Typography Reveal (Editorial Headings)
+      // ─── PHASE 2: HEADER — fades in once section is on screen ─────────────────
       gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top 45%",
-          toggleActions: "play none none reverse"
+          toggleActions: "play none none reverse",
         }
       })
-      .fromTo(".cert-label", 
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1, ease: "expo.out" }
-      )
-      .fromTo(".cert-heading",
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1.2, ease: "expo.out" },
-        "-=0.8"
-      )
-      .fromTo(".cert-desc",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
-        "-=0.8"
-      );
+        .fromTo(".cert-label",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1, ease: "expo.out" }
+        )
+        .fromTo(".cert-heading",
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 1.2, ease: "expo.out" },
+          "-=0.8"
+        )
+        .fromTo(".cert-subtitle",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
+          "-=0.8"
+        );
 
-      // 4. Initial Card Entrance (Folding up from below)
-      gsap.fromTo(".cert-card", 
-        { 
-          opacity: 0, 
-          y: 100, 
-          scale: 0.90, 
-          rotationX: 10,
-          transformPerspective: 1200
-        },
-        { 
-          opacity: 1, 
-          y: 0, 
-          scale: 1, 
-          rotationX: 0,
-          duration: 1.6, 
-          stagger: 0.15,
-          ease: "back.out(1.2)", // Spring-like premium easing
-          scrollTrigger: {
-            trigger: cardsRef.current,
-            start: "top 75%",
-            toggleActions: "play none none reverse"
-          }
+      // ─── PHASE 3: CARDS — set hidden first, then reveal via clip-path ─────────
+      // gsap.set ensures cards are hidden BEFORE render, avoiding flash
+      gsap.set(".cert-card-wrapper", { clipPath: "inset(100% 0% 0% 0%)" });
+
+      gsap.to(".cert-card-wrapper", {
+        clipPath: "inset(0% 0% 0% 0%)",
+        ease: "power2.inOut",
+        duration: 1.2,
+        stagger: 0.18,
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 20%",       // triggers once the section is mostly on screen
+          toggleActions: "play none none reverse",
         }
-      );
-
-      // 5. Horizontal Cinematic Scroll & Active Card Focus
-      const wrapper = cardsRef.current;
-      if (wrapper) {
-        const totalWidth = wrapper.scrollWidth - window.innerWidth;
-        if (totalWidth > 0) {
-          const scrollTween = gsap.to(wrapper, {
-            x: -totalWidth,
-            ease: "none",
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: () => `+=${totalWidth}`,
-              scrub: 1,
-              pin: true,
-              anticipatePin: 1,
-            }
-          });
-
-          // GSAP containerAnimation for ultra-performant active state
-          const cards = gsap.utils.toArray(".cert-card");
-          cards.forEach((card: any) => {
-            ScrollTrigger.create({
-              trigger: card,
-              containerAnimation: scrollTween,
-              start: "left right", // enters viewport
-              end: "right left",   // leaves viewport
-              scrub: true,
-              onUpdate: (self) => {
-                const p = self.progress;
-                // Parabola: peaks at 1 when progress is 0.5 (center of viewport)
-                const activeProgress = 1 - Math.pow((p - 0.5) * 2.5, 2); 
-                const clamped = Math.max(0, activeProgress);
-                
-                // Hardware accelerated properties only
-                gsap.set(card, {
-                  scale: 0.85 + (clamped * 0.15),
-                  opacity: 0.3 + (clamped * 0.7),
-                });
-                
-                // Dim the image slightly when not active
-                const previewImg = card.querySelector(".cert-preview");
-                if (previewImg) {
-                  gsap.set(previewImg, {
-                    opacity: 0.5 + (clamped * 0.5),
-                  });
-                }
-              }
-            });
-          });
-        }
-      }
+      });
 
     }, containerRef);
-    
+
     return () => ctx.revert();
-  }, { scope: containerRef });
+  }, []);
 
   return (
     <section ref={containerRef} className="relative w-full z-20 bg-transparent">
-      <div 
+
+      {/* The black panel — starts as a small rounded rectangle and grows */}
+      <div
         ref={innerRef}
-        className="relative w-full h-[100vh] bg-[#09090b] text-[#e3e2dc] overflow-hidden will-change-transform"
+        className="relative w-full bg-[#09090b] text-[#e3e2dc] overflow-hidden will-change-transform"
       >
-        {/* Layer 1: Background Gradient */}
+        {/* Ambient background layers */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#09090b] via-[#111115] to-[#0a0a0c] z-0" />
-
-        {/* Layer 2: Subtle Film Grain */}
-        <div 
+        <div
           className="layer-noise absolute inset-0 opacity-[0.035] mix-blend-screen z-0 pointer-events-none will-change-transform"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} 
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
         />
-
-        {/* Layer 3: Warm Ambient Lighting (Milestone Feel) */}
         <div className="layer-light-1 absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/10 blur-[100px] rounded-full pointer-events-none z-0 will-change-transform" />
         <div className="layer-light-2 absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none z-0 will-change-transform" />
 
-        {/* Layer 4: Abstract Graphic (Paper/Award Ribbon Texture abstraction) */}
-        <div 
+        {/* Abstract geometry parallax */}
+        <div
           ref={bgVisualRef}
           className="absolute top-[10%] right-[2%] w-[50vw] h-[50vw] max-w-[700px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-3xl rounded-[4rem] rotate-[20deg] pointer-events-none z-0 overflow-hidden shadow-[inset_0_0_80px_rgba(255,255,255,0.02)] will-change-transform"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/5 to-white/10 opacity-60" />
         </div>
 
-        {/* Content Layer */}
-        <div className="relative z-10 w-full h-full flex flex-col pt-16 md:pt-24 justify-center">
-          {/* Editorial Header */}
-          <div className="px-8 md:px-[15vw] z-20 pointer-events-none shrink-0 mb-4 md:mb-12">
-            <span className="cert-label text-[12px] font-bold tracking-[0.15em] text-amber-500/90 uppercase block mb-4">
-              Milestones
-            </span>
-            <h2 className="cert-heading text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-white leading-[1.05] text-balance">
-              Continuous Growth
-            </h2>
-            <p className="cert-desc mt-6 text-[17px] text-[#888888] font-medium max-w-sm md:max-w-xl leading-[1.5] text-balance">
-              A curated timeline of professional development, rigorous technical programs, and industry-recognized qualifications.
-            </p>
-          </div>
+        {/* Content */}
+        <div className="relative z-10 w-full flex flex-col items-center px-6 md:px-12 pt-24 pb-32">
+          <div className="max-w-[90rem] w-full flex flex-col items-center">
 
-          {/* Premium Cards Container */}
-          <div 
-            ref={cardsRef} 
-            className="flex gap-12 md:gap-[10vw] px-8 md:px-[15vw] items-center will-change-transform flex-1 min-h-[400px] max-h-[600px]"
-          >
-            {CERTIFICATIONS.map((cert, idx) => (
-              <div 
-                key={idx} 
-                className="cert-card group relative flex flex-col md:flex-row w-[85vw] md:w-[65vw] max-w-[900px] shrink-0 h-full bg-white/[0.02] border border-white/10 hover:border-white/20 rounded-[24px] md:rounded-[32px] overflow-hidden backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] transition-colors duration-500 will-change-transform"
-              >
-                {/* Internal Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/0 via-white/0 to-white/0 group-hover:from-amber-500/5 group-hover:via-white/[0.02] group-hover:to-transparent transition-colors duration-700 pointer-events-none z-0" />
-                
-                {/* Left: Editorial Information (Text hierarchy) */}
-                <div className="flex-1 flex flex-col justify-between p-8 md:p-12 z-10 whitespace-normal">
-                  <div>
-                    {/* Tags */}
-                    <div className="flex items-center gap-4 mb-6 md:mb-8">
-                      <span className="text-[12px] font-bold tracking-[0.15em] text-amber-400/90 uppercase bg-amber-500/10 px-4 py-2 rounded-full border border-amber-500/20">
-                        {cert.year}
-                      </span>
-                      <span className="text-[12px] font-bold tracking-[0.15em] text-white/50 uppercase">
-                        {cert.issuer}
-                      </span>
-                    </div>
-                    
-                    {/* Title */}
-                    <h3 className="text-[clamp(1.75rem,3vw,2.5rem)] font-medium text-white leading-[1.1] mb-4 md:mb-5 tracking-tight text-balance">
-                      {cert.name}
-                    </h3>
-                    
-                    {/* Explanation */}
-                    <p className="text-[15px] md:text-[16px] text-white/70 font-medium leading-[1.5] max-w-sm text-balance">
-                      {cert.description}
-                    </p>
-                  </div>
-                  
-                  {/* Verification / Action */}
-                  <div className="mt-8 md:mt-0">
-                    <button className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white transition-colors group/btn">
-                      View Credential
-                      <div className="w-8 h-[1px] bg-white/30 group-hover/btn:bg-white group-hover/btn:w-12 transition-all duration-300" />
-                    </button>
-                  </div>
-                </div>
+            {/* Editorial header */}
+            <div className="text-center mb-20 flex flex-col items-center">
+              <span className="cert-label text-[12px] font-bold tracking-[0.2em] text-amber-500/90 uppercase block mb-5">
+                Milestones
+              </span>
+              <h2 className="cert-heading text-[clamp(2.75rem,5vw,5rem)] font-medium tracking-tight text-white leading-none">
+                CERTIFICATIONS
+              </h2>
+              <p className="cert-subtitle text-[#888888] text-[clamp(1rem,1.5vw,1.15rem)] font-medium mt-6 max-w-2xl text-balance">
+                A curated timeline of professional development, rigorous technical programs, and industry-recognized qualifications.
+              </p>
+            </div>
 
-                {/* Right: Intelligently Cropped Certificate Preview */}
-                <div className="flex-1 relative min-h-[250px] md:min-h-full overflow-hidden bg-black/40 border-t md:border-t-0 md:border-l border-white/10 group-hover:border-white/20 transition-colors duration-500">
-                  {/* Subtle vignette for depth */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-transparent to-black/20 z-10 pointer-events-none" />
-                  
-                  <Image
-                    src={cert.image}
-                    alt={cert.name}
-                    fill
-                    className="cert-preview object-cover object-left-top opacity-50 group-hover:opacity-100 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] scale-105 group-hover:scale-100 filter grayscale-[30%] group-hover:grayscale-0"
-                  />
-                </div>
-              </div>
-            ))}
+            {/* Premium 2-column grid */}
+            <div className="cert-grid grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 w-full max-w-6xl">
+              {CERTIFICATIONS.map((cert, i) => (
+                <CertCard key={i} cert={cert} />
+              ))}
+            </div>
+
           </div>
         </div>
       </div>

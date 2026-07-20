@@ -144,9 +144,9 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
 
-  // Option B Parallax: Background moves at 0.5x speed.
-  // 900px is roughly 100vh on desktop.
-  const heroBgY = useTransform(scrollY, [0, 900], [0, 450]);
+  // Stronger Parallax: Background translates down by 600px.
+  // The background scrolls up at 40% speed, creating deep 3D separation while still visibly moving.
+  const heroBgY = useTransform(scrollY, [0, 1000], [0, 600]);
 
   return (
     <div
@@ -270,7 +270,7 @@ function Projects() {
   return (
     <section
       id="projects"
-      className="relative z-10 pt-24 pb-48 md:pt-32 transform-gpu"
+      className="relative z-10 pt-24 pb-48 md:pt-32"
     >
       <div className="max-w-[90rem] mx-auto px-8 relative z-10">
         <div className="max-w-2xl mb-24 md:mb-32">
@@ -332,11 +332,21 @@ function ProjectCard({
   ];
 
   return (
-    <div
-      ref={containerRef}
-      className="h-[100vh] sticky top-0 flex items-center justify-center w-full origin-top"
-    >
-      <motion.div
+    <>
+      {/* 
+        This static absolute div is used to track scroll progress instead of the sticky element.
+        It perfectly overlays the natural flow space of this card in the flex container.
+        "start start" to "end start" covers exactly the 100vh of scrolling while the NEXT card
+        moves up to cover this one.
+      */}
+      <div 
+        ref={containerRef} 
+        className="absolute w-full h-[100vh] pointer-events-none" 
+        style={{ top: `${index * 100}vh` }} 
+      />
+      
+      <div className="h-[100vh] sticky top-0 flex items-center justify-center w-full origin-top">
+        <motion.div
         style={{ scale, opacity, y }}
         className="w-full h-[85vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border border-[#c8c7c1] bg-[#f7f6f2] p-6 md:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative group/card flex flex-col will-change-transform"
       >
@@ -510,6 +520,7 @@ function ProjectCard({
         </div>
       </motion.div>
     </div>
+    </>
   );
 }
 
