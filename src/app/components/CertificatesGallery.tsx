@@ -50,7 +50,7 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
   const handleMouseEnter = () => {
     if (cardRef.current) {
       rectRef.current = cardRef.current.getBoundingClientRect();
-      cardRef.current.style.willChange = 'transform'; // promote only during hover
+      cardRef.current.style.willChange = "transform";
     }
   };
 
@@ -64,7 +64,6 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
     const centerY = rect.height / 2;
     const rotateX = ((y - centerY) / centerY) * -3;
     const rotateY = ((x - centerX) / centerX) * 3;
-    // Direct style write — no GSAP tween created per frame
     el.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02) translateY(-8px)`;
     el.style.boxShadow = "0 20px 40px rgba(245,158,11,0.08)";
   };
@@ -81,12 +80,11 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
       boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
       duration: 0.7,
       ease: "power3.out",
-      onComplete: () => { el.style.willChange = 'auto'; }, // demote after spring-back
+      onComplete: () => { el.style.willChange = "auto"; },
     });
   };
 
   return (
-    // Wrapper has NO initial clip-path — GSAP sets it via gsap.set before animating
     <div className="cert-card-wrapper w-full">
       <div
         ref={cardRef}
@@ -107,7 +105,7 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
         </div>
         <div className="flex flex-col flex-1 p-8 md:p-10">
           <div className="flex items-center gap-4 mb-5">
-            <span className="text-[11px] font-bold tracking-[0.2em] text-amber-500 uppercase">{cert.year}</span>
+            <span className="text-[11px] font-bold tracking-[0.2em] text-amber-500/90 uppercase">{cert.year}</span>
             <span className="w-1 h-1 rounded-full bg-black/10" />
             <span className="text-[11px] font-bold tracking-[0.2em] text-[#111111]/40 uppercase">{cert.issuer}</span>
           </div>
@@ -131,30 +129,45 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
 
 export default function CertificatesGallery() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const bgVisualRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     const ctx = gsap.context(() => {
+      const wrapper = wrapperRef.current;
+      const content = contentRef.current;
+      if (!wrapper || !content) return;
 
       // ─── PHASE 1: ENTRANCE — rounded corners → sharp corners as section moves up ─
+      // Uses clip-path inset with round for performant rounded corners (transform-only)
+      // Force initial state immediately so it's correct even if section is already in view
+      gsap.set(wrapper, { 
+        clipPath: "inset(0% 0% 0% 0% round 500px)",
+        scale: 0.25,
+        y: "30vh",
+        transformOrigin: "center center",
+      });
+
       const tlReveal = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top bottom",
-          end: "top top",
+          end: "top 10%",
           scrub: 1,
         }
       });
 
-      tlReveal.fromTo(innerRef.current,
-        {
-          borderRadius: "120px",
-          y: "12vh",
-          scale: 0.85,
+      tlReveal.fromTo(wrapper,
+        { 
+          clipPath: "inset(0% 0% 0% 0% round 500px)",
+          scale: 0.25,
+          y: "30vh",
+          transformOrigin: "center center",
+          immediateRender: true,
         },
         {
-          borderRadius: "0px",
+          clipPath: "inset(0% 0% 0% 0% round 0px)",
           y: "0vh",
           scale: 1,
           ease: "power2.inOut",
@@ -199,29 +212,22 @@ export default function CertificatesGallery() {
         }
       });
 
-      // ─── PHASE 4: EXIT ────────────────────────────────────────────────────────────
+      // ─── PHASE 4: EXIT — starts AFTER entrance ends (top center) ─────────────────
       const tlExit = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "bottom bottom",
+          start: "bottom center",
           end: "bottom top",
           scrub: 1,
         }
       });
 
-      tlExit.fromTo(innerRef.current,
-        {
-          borderRadius: "0px",
-          y: "0vh",
-          scale: 1,
-        },
-        {
-          borderRadius: "120px",
-          y: "-12vh",
-          scale: 0.85,
-          ease: "power2.inOut",
-        }, 0
-      );
+      tlExit.to(wrapper, {
+        clipPath: "inset(0% 0% 0% 0% round 500px)",
+        y: "30vh",
+        scale: 0.25,
+        ease: "power2.inOut",
+      }, 0);
 
     }, containerRef);
 
@@ -229,32 +235,40 @@ export default function CertificatesGallery() {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative w-full z-20 bg-transparent" style={{ contain: 'layout paint' }}>
+    <section ref={containerRef} className="relative w-full z-20 bg-transparent" style={{ contain: "layout paint" }}>
 
-      {/* The black panel — starts as a small rounded rectangle and grows */}
+      {/* Simple animated wrapper — ONLY transforms, no complex children */}
       <div
-        ref={innerRef}
-        className="relative w-full bg-[#e3e2dc] text-[#111111] overflow-hidden will-change-transform"
+        ref={wrapperRef}
+        className="relative w-full overflow-hidden will-change-transform"
+        style={{ transformOrigin: "center center", contain: "layout paint" }}
       >
-        {/* Ambient background layers */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#e3e2dc] via-[#f7f6f2] to-[#e3e2dc] z-0" />
+        {/* Static background layers — NOT transformed, painted once */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#e3e2dc] via-[#f7f6f2] to-[#e3e2dc] z-0" style={{ contain: "paint" }} />
         <div
-          className="layer-noise absolute inset-0 opacity-[0.035] z-0 pointer-events-none"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+          className="absolute inset-0 opacity-[0.035] z-0 pointer-events-none"
+          style={{
+            contain: "paint",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+          }}
         />
-        <div className="layer-light-1 absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/10 blur-[80px] rounded-full pointer-events-none z-0" />
-        <div className="layer-light-2 absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none z-0" />
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-500/10 blur-[80px] rounded-full pointer-events-none z-0" style={{ contain: "paint" }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none z-0" style={{ contain: "paint" }} />
 
-        {/* Abstract geometry parallax */}
+        {/* Abstract geometry parallax — separate layer, not in transformed wrapper */}
         <div
           ref={bgVisualRef}
           className="absolute top-[10%] right-[2%] w-[50vw] h-[50vw] max-w-[700px] border border-black/5 bg-gradient-to-br from-black/[0.03] to-transparent rounded-[4rem] rotate-[20deg] pointer-events-none z-0 overflow-hidden will-change-transform"
+          style={{ contain: "paint" }}
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/5 to-black/10 opacity-60" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 w-full flex flex-col items-center px-6 md:px-12 pt-24 pb-32">
+        {/* Content layer — NOT transformed, sits inside wrapper */}
+        <div
+          ref={contentRef}
+          className="relative z-10 w-full flex flex-col items-center px-6 md:px-12 pt-24 pb-32"
+        >
           <div className="max-w-[90rem] w-full flex flex-col items-center">
 
             {/* Editorial header */}

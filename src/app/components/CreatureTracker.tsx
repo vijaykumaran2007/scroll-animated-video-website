@@ -158,8 +158,8 @@ export default function CreatureTracker() {
       }
 
       const delta = targetIdxRef.current - currentIdxRef.current;
-      // Stop when settled — restart on next mouse/touch input
-      if (Math.abs(delta) < 0.01) {
+      // Always draw at least once, then stop when settled
+      if (Math.abs(delta) < 0.01 && lastDrawnIdxRef.current !== -1) {
         rafRef.current = null;
         return;
       }
