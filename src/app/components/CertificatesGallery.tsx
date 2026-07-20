@@ -74,7 +74,7 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
       rotateY: 0,
       scale: 1,
       y: 0,
-      boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
       duration: 0.7,
       ease: "power3.out",
     });
@@ -85,11 +85,11 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
     <div className="cert-card-wrapper w-full">
       <div
         ref={cardRef}
-        className="group relative w-full flex flex-col overflow-hidden bg-[#111113] border border-white/5 cursor-pointer will-change-transform shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
+        className="group relative w-full flex flex-col overflow-hidden bg-white border border-black/5 cursor-pointer will-change-transform shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#0a0a0c]">
+        <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#f7f6f2]">
           <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-black/20 z-10 pointer-events-none" />
           <Image
             src={cert.image}
@@ -102,19 +102,19 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
         <div className="flex flex-col flex-1 p-8 md:p-10">
           <div className="flex items-center gap-4 mb-5">
             <span className="text-[11px] font-bold tracking-[0.2em] text-amber-500 uppercase">{cert.year}</span>
-            <span className="w-1 h-1 rounded-full bg-white/10" />
-            <span className="text-[11px] font-bold tracking-[0.2em] text-white/40 uppercase">{cert.issuer}</span>
+            <span className="w-1 h-1 rounded-full bg-black/10" />
+            <span className="text-[11px] font-bold tracking-[0.2em] text-[#111111]/40 uppercase">{cert.issuer}</span>
           </div>
-          <h3 className="text-2xl font-medium text-white mb-3 tracking-tight text-balance leading-[1.2]">
+          <h3 className="text-2xl font-medium text-[#111111] mb-3 tracking-tight text-balance leading-[1.2]">
             {cert.name}
           </h3>
-          <p className="text-[15px] text-[#888888] leading-relaxed font-medium text-balance mt-auto">
+          <p className="text-[15px] text-[#555555] leading-relaxed font-medium text-balance mt-auto">
             {cert.description}
           </p>
           <div className="mt-8">
-            <button className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white transition-colors group/btn opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 duration-500">
+            <button className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-[0.15em] text-[#111111]/70 hover:text-[#111111] transition-colors group/btn opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 duration-500">
               View Certificate
-              <div className="w-8 h-[1px] bg-white/30 group-hover/btn:bg-white group-hover/btn:w-12 transition-all duration-300" />
+              <div className="w-8 h-[1px] bg-black/30 group-hover/btn:bg-black group-hover/btn:w-12 transition-all duration-300" />
             </button>
           </div>
         </div>
@@ -246,10 +246,10 @@ export default function CertificatesGallery() {
       {/* The black panel — starts as a small rounded rectangle and grows */}
       <div
         ref={innerRef}
-        className="relative w-full bg-[#09090b] text-[#e3e2dc] overflow-hidden will-change-transform"
+        className="relative w-full bg-[#e3e2dc] text-[#111111] overflow-hidden will-change-transform"
       >
         {/* Ambient background layers */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#09090b] via-[#111115] to-[#0a0a0c] z-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#e3e2dc] via-[#f7f6f2] to-[#e3e2dc] z-0" />
         <div
           className="layer-noise absolute inset-0 opacity-[0.035] mix-blend-screen z-0 pointer-events-none will-change-transform"
           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
@@ -260,9 +260,9 @@ export default function CertificatesGallery() {
         {/* Abstract geometry parallax */}
         <div
           ref={bgVisualRef}
-          className="absolute top-[10%] right-[2%] w-[50vw] h-[50vw] max-w-[700px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-3xl rounded-[4rem] rotate-[20deg] pointer-events-none z-0 overflow-hidden shadow-[inset_0_0_80px_rgba(255,255,255,0.02)] will-change-transform"
+          className="absolute top-[10%] right-[2%] w-[50vw] h-[50vw] max-w-[700px] border border-black/5 bg-gradient-to-br from-black/[0.03] to-transparent backdrop-blur-3xl rounded-[4rem] rotate-[20deg] pointer-events-none z-0 overflow-hidden shadow-[inset_0_0_80px_rgba(0,0,0,0.02)] will-change-transform"
         >
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/5 to-white/10 opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-amber-500/5 to-black/10 opacity-60" />
         </div>
 
         {/* Content */}
@@ -274,10 +274,10 @@ export default function CertificatesGallery() {
               <span className="cert-label text-[12px] font-bold tracking-[0.2em] text-amber-500/90 uppercase block mb-5">
                 Milestones
               </span>
-              <h2 className="cert-heading text-[clamp(2.75rem,5vw,5rem)] font-medium tracking-tight text-white leading-none">
+              <h2 className="cert-heading text-[clamp(2.75rem,5vw,5rem)] font-medium tracking-tight text-[#111111] leading-none">
                 CERTIFICATIONS
               </h2>
-              <p className="cert-subtitle text-[#888888] text-[clamp(1rem,1.5vw,1.15rem)] font-medium mt-6 max-w-2xl text-balance">
+              <p className="cert-subtitle text-[#555555] text-[clamp(1rem,1.5vw,1.15rem)] font-medium mt-6 max-w-2xl text-balance">
                 A curated timeline of professional development, rigorous technical programs, and industry-recognized qualifications.
               </p>
             </div>

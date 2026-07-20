@@ -46,11 +46,11 @@ const GalleryCard = ({ item, isFirst, isTopRow, index }: { item: typeof GALLERY_
   const zIndex = Math.floor(pseudoRandom(index * 31) * 20);
   
   // Parallax multiplier (top row closer = more movement)
-  const parallax = isTopRow ? 6 : 3;
+  
 
   return (
     <div 
-      className={`gallery-card relative group flex-shrink-0 transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] rounded-2xl border border-black/5 hover:border-black/10 ${isTopRow ? 'shadow-xl hover:shadow-2xl' : 'shadow-md hover:shadow-xl'} ${isFirst ? '' : '-ml-6 md:-ml-10'} opacity-0 will-change-transform cursor-pointer`}
+      className={`gallery-card relative group flex-shrink-0 transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-[1.02] rounded-2xl border-[2px] border-amber-500/20 hover:border-amber-500/60 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] ${isTopRow ? 'shadow-xl hover:shadow-2xl' : 'shadow-md hover:shadow-xl'} ${isFirst ? '' : '-ml-6 md:-ml-10'} opacity-0 will-change-transform cursor-pointer`}
       style={{ zIndex }}
     >
       {/* CSS Float & Mouse Parallax Wrapper */}
@@ -58,11 +58,10 @@ const GalleryCard = ({ item, isFirst, isTopRow, index }: { item: typeof GALLERY_
         className="w-full h-full animate-float"
         style={{ 
           animationDuration: `${floatDuration}s`, 
-          animationDelay: `-${floatDelay}s`,
-          transform: `translate3d(calc(var(--mx, 0) * ${parallax}px), calc(var(--my, 0) * ${parallax}px), 0)`
+          animationDelay: `-${floatDelay}s`
         }}
       >
-        <div className={`relative overflow-hidden rounded-2xl bg-[#d4d3ce] ${sizeClasses}`}>
+        <div className={`relative overflow-hidden rounded-2xl bg-[#162A1E] ${sizeClasses}`}>
           <img
             src={item.src}
             alt={item.name}
@@ -73,7 +72,7 @@ const GalleryCard = ({ item, isFirst, isTopRow, index }: { item: typeof GALLERY_
           {/* Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
             <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-              <span className="text-indigo-300 text-[10px] uppercase tracking-wider font-bold mb-1.5 block">{item.category}</span>
+              <span className="text-amber-500 text-[10px] uppercase tracking-wider font-bold mb-1.5 block">{item.category}</span>
               <h4 className="text-white text-xl md:text-2xl font-medium mb-1">{item.name}</h4>
               <p className="text-white/80 text-xs md:text-sm mb-4 line-clamp-1">{item.desc}</p>
               <span className="text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">View Project &rarr;</span>
@@ -107,18 +106,6 @@ export default function WorkGallery() {
     );
   }, { scope: sectionRef });
 
-  useEffect(() => {
-    // ─── MOUSE PARALLAX TRACKING ─────────
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!sectionRef.current) return;
-      const x = (e.clientX / window.innerWidth - 0.5) * 2; // -1 to 1
-      const y = (e.clientY / window.innerHeight - 0.5) * 2;
-      sectionRef.current.style.setProperty('--mx', x.toString());
-      sectionRef.current.style.setProperty('--my', y.toString());
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   useEffect(() => {
     // ─── SCROLL DRIVEN INFINITE ROW ANIMATION ─────────
@@ -204,7 +191,7 @@ export default function WorkGallery() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-[#e3e2dc] border-t border-[#c8c7c1]">
+    <section ref={sectionRef} className="relative overflow-hidden bg-[#0B1F12] border-t border-white/10">
       <style jsx global>{`
         @keyframes float-card {
           0%, 100% { transform: translateY(0) rotate(0); }
@@ -226,10 +213,10 @@ export default function WorkGallery() {
 
       {/* Editorial Header */}
       <div className="relative z-10 w-full px-6 md:px-12 pt-28 pb-20 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <h2 className="font-medium text-[clamp(2.25rem,4.5vw,4rem)] tracking-tight text-[#111111] mb-6">
+        <h2 className="font-medium text-[clamp(2.25rem,4.5vw,4rem)] tracking-tight text-[#F7F7F4] mb-6">
           WORK GALLERY
         </h2>
-        <p className="text-[#555555] text-[clamp(1rem,1.2vw,1.15rem)] max-w-2xl text-balance leading-relaxed font-medium">
+        <p className="text-[#A8B0A7] text-[clamp(1rem,1.2vw,1.15rem)] max-w-2xl text-balance leading-relaxed font-medium">
           A visual archive of products, interfaces, experiments, and ideas built across web, mobile, AI, and design.
         </p>
       </div>

@@ -156,7 +156,7 @@ export default function Home() {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-[#e3e2dc] text-[#111111] selection:bg-indigo-500 selection:text-indigo-950"
+      className="relative min-h-screen bg-[#0B1F12] text-[#F7F7F4] selection:bg-indigo-500 selection:text-indigo-950"
     >
       <div className="relative w-full z-0 overflow-hidden">
         <Hero heroBgY={heroBgY} />
@@ -166,7 +166,6 @@ export default function Home() {
       <CertificatesGallery />
       <WorkGallery />
       <Contact />
-      <Footer />
     </div>
   );
 }
@@ -175,7 +174,7 @@ export default function Home() {
 
 function Hero({ heroBgY }: { heroBgY: any }) {
   return (
-    <section id="hero-section" className="relative h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#e3e2dc]">
+    <section id="hero-section" className="relative h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#0B1F12]">
       
       {/* Background Parallax Layer */}
       <motion.div 
@@ -193,7 +192,7 @@ function Hero({ heroBgY }: { heroBgY: any }) {
           
           {/* Left Side: Big Text & Trust */}
           <div className="max-w-4xl flex flex-col gap-8">
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400 -mb-4">
+            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-amber-600 -mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block w-3 h-3 -mt-0.5 mr-1.5 align-middle"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
               Coimbatore, India
             </p>
@@ -214,7 +213,7 @@ function Hero({ heroBgY }: { heroBgY: any }) {
             <div className="flex flex-wrap items-center gap-4">
               <a
                 href="#projects"
-                className="flex items-center gap-2 bg-white text-[#111111] px-5 py-3 rounded-[10px] text-[15px] font-semibold hover:bg-white/90 transition-colors"
+                className="flex items-center gap-2 bg-white text-black px-5 py-3 rounded-[10px] text-[15px] font-semibold hover:bg-white/90 transition-colors"
               >
                 View selected work
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
@@ -259,7 +258,7 @@ function Hero({ heroBgY }: { heroBgY: any }) {
         href="https://github.com/vijaykumaran2007"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#e3e2dc]/80 border border-[#b4b3ad] hover:border-indigo-400 text-[#444444] hover:text-indigo-400 rounded-full backdrop-blur-md transition-all duration-200"
+        className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#0B1F12]/80 border border-white/20 hover:border-indigo-400 text-[#A8B0A7] hover:text-amber-600 rounded-full backdrop-blur-md transition-all duration-200"
       >
         <GithubIcon className="w-[22px] h-[22px] stroke-[2px]" />
       </a>
@@ -353,7 +352,7 @@ function ProjectCard({
       <div className="h-[100vh] sticky top-0 flex items-center justify-center w-full origin-top">
         <motion.div
         style={{ scale, opacity, y }}
-        className="w-full h-[85vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border border-[#c8c7c1] bg-[#f7f6f2] p-6 md:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative group/card flex flex-col will-change-transform"
+        className="w-full h-[85vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border-[2px] border-amber-500/20 hover:border-amber-500/60 transition-colors duration-500 bg-[#162A1E] p-6 md:p-10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden relative group/card flex flex-col will-change-transform"
       >
         <div
           className="absolute inset-0 pointer-events-none z-0"
@@ -372,13 +371,13 @@ function ProjectCard({
               className="flex items-center gap-4 mb-2"
             >
               <span
-                className="font-black leading-none text-[#111111]/5 tabular-nums"
+                className="font-black leading-none text-[#F7F7F4]/5 tabular-nums"
                 style={{ fontSize: "clamp(3rem, 8vw, 100px)" }}
               >
                 {project.num}
               </span>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[#333333] text-[11px] uppercase tracking-[0.2em] font-bold border border-[#c8c7c1] rounded-full px-4 py-1.5 bg-white/50">
+                <span className="text-[#F7F7F4] text-[11px] uppercase tracking-[0.2em] font-bold border border-white/10 rounded-full px-4 py-1.5 bg-white/50">
                   {project.category}
                 </span>
               </div>
@@ -390,10 +389,10 @@ function ProjectCard({
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <h3 className="text-3xl md:text-5xl font-black text-[#111111] leading-[1.1] tracking-tight mb-4 text-balance">
+              <h3 className="text-3xl md:text-5xl font-black text-[#F7F7F4] leading-[1.1] tracking-tight mb-4 text-balance">
                 {project.title}
               </h3>
-              <p className="text-[17px] text-[#555555] leading-[1.6] max-w-md font-medium">
+              <p className="text-[17px] text-[#A8B0A7] leading-[1.6] max-w-md font-medium">
                 {project.blurb}
               </p>
             </motion.div>
@@ -408,7 +407,7 @@ function ProjectCard({
               {project.stack.map((tag) => (
                 <span
                   key={tag}
-                  className="text-[12px] font-semibold px-3 py-1 rounded-[8px] bg-black/5 text-[#333333]"
+                  className="text-[12px] font-semibold px-3 py-1 rounded-[8px] bg-white/5 text-[#F7F7F4]"
                 >
                   {tag}
                 </span>
@@ -426,7 +425,7 @@ function ProjectCard({
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group/btn inline-flex items-center gap-3 rounded-full bg-[#111111] px-6 py-3.5 text-white text-[13px] font-bold uppercase tracking-widest hover:bg-[#222222] transition-colors duration-300"
+                className="group/btn inline-flex items-center gap-3 rounded-full bg-white/10 px-6 py-3.5 text-white text-[13px] font-bold uppercase tracking-widest hover:bg-white/20 transition-colors duration-300"
               >
                 View Case Study
                 <div className="overflow-hidden relative w-4 h-4">
@@ -451,7 +450,7 @@ function ProjectCard({
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                  className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc]"
+                  className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#0B1F12]"
                   style={{ height: isEven ? "45%" : "100%" }}
                 >
                   <Image
@@ -469,7 +468,7 @@ function ProjectCard({
                     whileInView={{ opacity: 1, scale: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc] h-[55%]"
+                    className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#0B1F12] h-[55%]"
                   >
                     <Image
                       src={project.images[1]}
@@ -489,7 +488,7 @@ function ProjectCard({
                   whileInView={{ opacity: 1, scale: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-                  className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc]"
+                  className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#0B1F12]"
                   style={{ height: isEven ? "100%" : "45%" }}
                 >
                   <Image
@@ -507,7 +506,7 @@ function ProjectCard({
                     whileInView={{ opacity: 1, scale: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                    className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#e3e2dc] h-[55%]"
+                    className="relative overflow-hidden rounded-[24px] shadow-[0_8px_30px_-12px_rgba(0,0,0,0.2)] bg-[#0B1F12] h-[55%]"
                   >
                     <Image
                       src={project.images[1]}
@@ -555,7 +554,7 @@ function Skills() {
   return (
     <section
       id="about"
-      className="relative z-30 w-full pt-40 pb-24 md:pb-32 bg-[#e3e2dc] will-change-transform"
+      className="relative z-30 w-full pt-40 pb-24 md:pb-32 bg-[#0B1F12] will-change-transform"
     >
       <div className="max-w-[90rem] mx-auto px-8 relative z-20">
         
@@ -567,7 +566,7 @@ function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-[#111111] leading-[1.05] text-balance"
+              className="text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-[#F7F7F4] leading-[1.05] text-balance"
             >
               Crafting <br className="hidden lg:block"/> experiences.
             </motion.h2>
@@ -576,7 +575,7 @@ function Skills() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              className="mt-6 text-[17px] text-[#555555] font-medium max-w-sm leading-[1.5]"
+              className="mt-6 text-[17px] text-[#A8B0A7] font-medium max-w-sm leading-[1.5]"
             >
               The curated toolkit I rely on daily to design, architect, and ship high-end digital products.
             </motion.p>
@@ -592,14 +591,14 @@ function Skills() {
             >
               {SKILLS.map((group) => (
                 <div key={group.group} className="flex flex-col gap-4">
-                  <span className="text-[12px] font-bold tracking-[0.15em] text-[#888888] uppercase pl-1">{group.group}</span>
+                  <span className="text-[12px] font-bold tracking-[0.15em] text-white/60 uppercase pl-1">{group.group}</span>
                   <div className="flex flex-wrap gap-2.5 items-center">
                     {group.items.map((skill) => (
                       <motion.div
                         key={skill}
                         variants={staggerItem}
                         whileHover={{ y: -3, scale: 1.02 }}
-                        className="px-5 py-2.5 rounded-[12px] bg-[#f7f6f2] border border-[#d5d4ce] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] text-[#222222] font-semibold text-[14px] cursor-default will-change-transform transition-colors transition-shadow duration-300 hover:bg-[#ffffff] hover:border-[#b4b3ad] hover:shadow-[0_8px_16px_-6px_rgba(0,0,0,0.08)]"
+                        className="px-5 py-2.5 rounded-[12px] bg-[#162A1E] border border-white/10 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] text-[#F7F7F4] font-semibold text-[14px] cursor-default will-change-transform transition-colors transition-shadow duration-300 hover:bg-white/10 hover:border-white/20 hover:shadow-[0_8px_16px_-6px_rgba(0,0,0,0.08)]"
                       >
                         {skill}
                       </motion.div>
@@ -619,7 +618,7 @@ function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-[#111111] leading-[1.05] text-balance"
+              className="text-[clamp(2.75rem,5vw,4.5rem)] font-medium tracking-tight text-[#F7F7F4] leading-[1.05] text-balance"
             >
               Where I&apos;ve <br className="hidden lg:block"/> been.
             </motion.h2>
@@ -628,7 +627,7 @@ function Skills() {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ delay: 0.15, duration: 0.6 }}
-              className="mt-6 text-[17px] text-[#555555] font-medium max-w-sm leading-[1.5]"
+              className="mt-6 text-[17px] text-[#A8B0A7] font-medium max-w-sm leading-[1.5]"
             >
               Communities, teams, and milestones that have shaped my perspective and approach to engineering.
             </motion.p>
@@ -641,7 +640,7 @@ function Skills() {
               whileInView={{ height: "100%" }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1.2, ease: "easeInOut" }}
-              className="absolute left-[27px] top-4 w-[1px] bg-gradient-to-b from-amber-500/40 via-[#111111]/10 to-transparent" 
+              className="absolute left-[27px] top-4 w-[1px] bg-gradient-to-b from-amber-500/40 via-white/10 to-transparent" 
             />
             
             <motion.div 
@@ -662,14 +661,14 @@ function Skills() {
                   className="relative pl-16 group"
                 >
                   {/* Timeline interactive dot */}
-                  <div className="absolute left-[23px] top-6 w-[9px] h-[9px] rounded-full bg-[#e3e2dc] border-[2px] border-[#888888] group-hover:bg-amber-500 group-hover:border-amber-500 group-hover:scale-[1.6] transition-all duration-300 z-10 will-change-transform" />
+                  <div className="absolute left-[23px] top-6 w-[9px] h-[9px] rounded-full bg-[#0B1F12] border-[2px] border-[#888888] group-hover:bg-amber-500 group-hover:border-amber-500 group-hover:scale-[1.6] transition-all duration-300 z-10 will-change-transform" />
                   
                   {/* Refined Milestone Card - Tighter padding, stronger identity, no backdrop blur */}
-                  <div className="bg-[#f7f6f2] border border-[#d5d4ce] px-6 py-5 rounded-[16px] shadow-[0_2px_12px_-6px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] group-hover:-translate-y-0.5 group-hover:bg-[#ffffff] group-hover:border-[#c8c7c1] transition-all duration-400 will-change-transform">
+                  <div className="bg-[#162A1E] border border-white/10 px-6 py-5 rounded-[16px] shadow-[0_2px_12px_-6px_rgba(0,0,0,0.04)] group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.08)] group-hover:-translate-y-0.5 group-hover:bg-white/10 group-hover:border-white/10 transition-all duration-400 will-change-transform">
                     <span className="text-[11px] font-bold tracking-[0.2em] text-amber-600 uppercase mb-1.5 block">
                       {exp.title}
                     </span>
-                    <h3 className="text-[19px] md:text-[21px] font-bold text-[#111111] leading-tight tracking-tight">
+                    <h3 className="text-[19px] md:text-[21px] font-bold text-[#F7F7F4] leading-tight tracking-tight">
                       {exp.org}
                     </h3>
                   </div>
@@ -699,7 +698,6 @@ function Contact() {
   const emailCardRef  = useRef<HTMLDivElement>(null);
   const ghCardRef     = useRef<HTMLAnchorElement>(null);
   const liCardRef     = useRef<HTMLAnchorElement>(null);
-  const closingRef    = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -800,34 +798,6 @@ function Contact() {
       }
     });
 
-    // ─── CINEMATIC EXIT SEQUENCE (scroll through 150vh container) ───
-    const exitTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1.2,
-      }
-    });
-
-    // 0–50% of scroll: everything stable
-    // 50–65%: social cards fade down
-    exitTl.to([ghCardRef.current, liCardRef.current], { opacity: 0, y: 24, ease: "power2.in" }, 0.5);
-    // 55–70%: description fades
-    exitTl.to(descRef.current, { opacity: 0, y: 10, ease: "power2.in" }, 0.55);
-    // 60–75%: heading and eyebrow fade
-    exitTl.to([eyebrowRef.current, headingRef.current], { opacity: 0, y: -10, ease: "power2.in" }, 0.62);
-    // 68–80%: email card fades last among primary
-    exitTl.to(emailCardRef.current, { opacity: 0, scale: 0.97, ease: "power2.in" }, 0.7);
-    // 72–85%: bg text fades
-    exitTl.to(bgText, { opacity: 0, ease: "power2.in" }, 0.72);
-    // 80–95%: closing statement rises in
-    exitTl.fromTo(closingRef.current,
-      { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, ease: "power3.out" },
-      0.82
-    );
-
     return () => {
       window.removeEventListener("mousemove", onMouse);
       gsap.ticker.remove(ticker);
@@ -837,8 +807,7 @@ function Contact() {
   return (
     <section
       ref={sectionRef}
-      className="relative z-10 border-t border-[#c8c7c1] bg-[#e3e2dc]"
-      style={{ height: "250vh" }}
+      className="relative z-10 border-t border-white/10 bg-[#0B1F12] pt-24 pb-24"
     >
       <style jsx global>{`
         @keyframes contact-pulse {
@@ -848,7 +817,7 @@ function Contact() {
         .contact-pulse { animation: contact-pulse 2.8s ease-out infinite; }
       `}</style>
 
-      <div ref={stickyRef} className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
+      <div ref={stickyRef} className="w-full flex items-center justify-center overflow-hidden">
 
         {/* ── LAYER 0: Ambient vignette ── */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_0%,rgba(0,0,0,0.05)_100%)] pointer-events-none z-0" />
@@ -886,14 +855,14 @@ function Contact() {
             <div>
               <p
                 ref={eyebrowRef}
-                className="font-mono text-[11px] uppercase tracking-[0.22em] text-indigo-500 font-bold mb-7 opacity-0"
+                className="font-mono text-[11px] uppercase tracking-[0.22em] text-amber-600 font-bold mb-7 opacity-0"
               >
                 Contact
               </p>
 
               <h2
                 ref={headingRef}
-                className="text-[clamp(2rem,4.2vw,3.4rem)] font-bold tracking-tight leading-[1.08] text-[#111111] text-balance mb-7"
+                className="text-[clamp(2rem,4.2vw,3.4rem)] font-bold tracking-tight leading-[1.08] text-[#F7F7F4] text-balance mb-7"
               >
                 {["Have a project,", "an internship opportunity,", "or just want to talk Flutter?"].map((line, i) => (
                   <div key={i} className="overflow-hidden py-0.5">
@@ -904,7 +873,7 @@ function Contact() {
 
               <p
                 ref={descRef}
-                className="text-[17px] leading-[1.75] text-[#555555] max-w-md font-medium opacity-0"
+                className="text-[17px] leading-[1.75] text-[#A8B0A7] max-w-md font-medium opacity-0"
               >
                 I&apos;m open to internships, hackathon teams, and interesting collaborations. Email is the fastest way to reach me.
               </p>
@@ -932,27 +901,27 @@ function Contact() {
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-2.5">
                       <span className="relative flex h-2 w-2">
-                        <span className="contact-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-500" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                        <span className="contact-pulse absolute inline-flex h-full w-full rounded-full bg-amber-600" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600" />
                       </span>
-                      <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#444444]">
+                      <span className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-[#A8B0A7]">
                         Available for internships &amp; collabs
                       </span>
                     </div>
-                    <ArrowUpRight className="w-4 h-4 text-[#888888] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 flex-shrink-0" />
+                    <ArrowUpRight className="w-4 h-4 text-white/60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 flex-shrink-0" />
                   </div>
 
                   {/* Email + copy */}
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-[1.25rem] md:text-[1.45rem] font-bold text-[#111111] tracking-tight leading-tight break-all">
+                    <span className="text-[1.1rem] sm:text-[1.25rem] md:text-[1.45rem] font-bold text-[#F7F7F4] tracking-tight leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
                       vijaykumaran2007@gmail.com
                     </span>
-                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-[#111111]/6 group-hover:bg-[#111111]/10 rounded-full border border-[#111111]/8 transition-colors duration-300">
-                      <Copy className="w-[15px] h-[15px] text-[#333333]" />
+                    <div className="flex-shrink-0 w-9 h-9 flex items-center justify-center bg-white/5 group-hover:bg-white/10 rounded-full border border-white/10 transition-colors duration-300">
+                      <Copy className="w-[15px] h-[15px] text-[#F7F7F4]" />
                     </div>
                   </div>
 
-                  <p className="mt-3 text-[11px] text-[#888888] font-medium">Click to copy address</p>
+                  <p className="mt-3 text-[11px] text-white/60 font-medium">Click to copy address</p>
                 </div>
               </div>
 
@@ -965,12 +934,12 @@ function Contact() {
                 className="group flex items-center gap-4 rounded-[16px] bg-white/25 backdrop-blur-[8px] border border-white/45 shadow-[0_2px_12px_-6px_rgba(0,0,0,0.06)] p-4 md:p-5 hover:-translate-y-1 hover:bg-white/40 hover:shadow-[0_10px_28px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 will-change-transform opacity-0 overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10 flex-shrink-0 w-10 h-10 bg-[#111111] text-white rounded-[10px] flex items-center justify-center group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300 shadow-sm">
+                <div className="relative z-10 flex-shrink-0 w-10 h-10 bg-white/10 text-white rounded-[10px] flex items-center justify-center group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300 shadow-sm">
                   <GithubIcon className="w-[18px] h-[18px]" />
                 </div>
                 <div className="relative z-10 flex flex-col">
-                  <span className="font-bold text-[#111111] text-[15px] leading-tight">GitHub</span>
-                  <span className="text-[12px] text-[#666666] font-medium mt-0.5 flex items-center gap-1 group-hover:text-[#333333] transition-colors duration-200">
+                  <span className="font-bold text-[#F7F7F4] text-[15px] leading-tight">GitHub</span>
+                  <span className="text-[12px] text-[#A8B0A7] font-medium mt-0.5 flex items-center gap-1 group-hover:text-[#F7F7F4] transition-colors duration-200">
                     Explore projects
                     <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
                   </span>
@@ -986,12 +955,12 @@ function Contact() {
                 className="group flex items-center gap-4 rounded-[16px] bg-white/25 backdrop-blur-[8px] border border-white/45 shadow-[0_2px_12px_-6px_rgba(0,0,0,0.06)] p-4 md:p-5 hover:-translate-y-1 hover:bg-white/40 hover:shadow-[0_10px_28px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 will-change-transform opacity-0 overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10 flex-shrink-0 w-10 h-10 bg-[#111111] text-white rounded-[10px] flex items-center justify-center group-hover:scale-105 group-hover:-rotate-3 transition-transform duration-300 shadow-sm">
+                <div className="relative z-10 flex-shrink-0 w-10 h-10 bg-white/10 text-white rounded-[10px] flex items-center justify-center group-hover:scale-105 group-hover:-rotate-3 transition-transform duration-300 shadow-sm">
                   <LinkedinIcon className="w-[18px] h-[18px]" />
                 </div>
                 <div className="relative z-10 flex flex-col">
-                  <span className="font-bold text-[#111111] text-[15px] leading-tight">LinkedIn</span>
-                  <span className="text-[12px] text-[#666666] font-medium mt-0.5 flex items-center gap-1 group-hover:text-[#333333] transition-colors duration-200">
+                  <span className="font-bold text-[#F7F7F4] text-[15px] leading-tight">LinkedIn</span>
+                  <span className="text-[12px] text-[#A8B0A7] font-medium mt-0.5 flex items-center gap-1 group-hover:text-[#F7F7F4] transition-colors duration-200">
                     Let&apos;s connect
                     <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
                   </span>
@@ -1000,22 +969,6 @@ function Contact() {
             </div>
           </div>
         </div>
-
-        {/* ── LAYER 4: Cinematic closing statement ── */}
-        <div
-          ref={closingRef}
-          className="absolute inset-0 flex items-center justify-center px-8 pointer-events-none z-20 opacity-0"
-        >
-          <div className="text-center">
-            <p className="text-[clamp(2.5rem,6vw,5rem)] font-bold tracking-tight text-[#111111] leading-[1.1] text-balance">
-              Let&apos;s build something<br />meaningful.
-            </p>
-            <p className="mt-5 text-[16px] text-[#888888] font-medium tracking-wide">
-              Thanks for scrolling.
-            </p>
-          </div>
-        </div>
-
       </div>
 
       {/* ── Toast ── */}
@@ -1026,9 +979,9 @@ function Contact() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 bg-[#111111]/92 backdrop-blur-md text-white pl-3.5 pr-5 py-2.5 rounded-full text-[13px] font-semibold shadow-[0_16px_40px_-8px_rgba(0,0,0,0.35)] border border-white/10"
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 bg-white/10/92 backdrop-blur-md text-white pl-3.5 pr-5 py-2.5 rounded-full text-[13px] font-semibold shadow-[0_16px_40px_-8px_rgba(0,0,0,0.35)] border border-white/10"
           >
-            <div className="flex items-center justify-center w-5 h-5 bg-emerald-500/20 rounded-full">
+            <div className="flex items-center justify-center w-5 h-5 bg-amber-600/20 rounded-full">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-400"><polyline points="20 6 9 17 4 12" /></svg>
             </div>
             Email copied to clipboard
@@ -1036,57 +989,6 @@ function Contact() {
         )}
       </AnimatePresence>
     </section>
-  );
-}
-
-/* ---------- FOOTER -------------------------------------------------------- */
-
-function Footer() {
-  const textRef = useRef<HTMLParagraphElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fit = () => {
-      const text = textRef.current;
-      const wrap = wrapRef.current;
-      if (!text || !wrap) return;
-      // Use a very large size so the text definitely overflows, then measure
-      text.style.fontSize = "500px";
-      text.style.width = "max-content";
-      const textWidth = text.scrollWidth;
-      text.style.width = "";
-      const style = window.getComputedStyle(wrap);
-      const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-      const containerWidth = wrap.offsetWidth - paddingX;
-      if (textWidth > 0) {
-        text.style.fontSize = `${Math.floor(500 * containerWidth / textWidth)}px`;
-      }
-    };
-    // Wait for fonts before measuring so glyph widths are accurate
-    document.fonts.ready.then(fit);
-    const ro = new ResizeObserver(fit);
-    if (wrapRef.current) ro.observe(wrapRef.current);
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <footer className="relative z-10 bg-[#e3e2dc] border-t border-[#c8c7c1]" style={{ overflowX: "clip" }}>
-      {/* Large display name — fills full width dynamically */}
-      <div ref={wrapRef} className="w-full px-6 pt-16 pb-4 select-none pointer-events-none">
-        <p
-          ref={textRef}
-          className="font-black text-[#111111] leading-none whitespace-nowrap"
-          style={{
-            opacity: 0.4,
-            letterSpacing: "-0.03em",
-            display: "block",
-            width: "100%",
-          }}
-        >
-          Vijay Adithiya
-        </p>
-      </div>
-    </footer>
   );
 }
 
@@ -1108,13 +1010,13 @@ function SectionHeader({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-indigo-400 mb-4">
+      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-amber-600 mb-4">
         {eyebrow}
       </p>
-      <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] font-semibold tracking-[-0.02em] leading-[1.08] text-[#111111] text-balance">
+      <h2 className="text-[clamp(1.75rem,3.6vw,2.75rem)] font-semibold tracking-[-0.02em] leading-[1.08] text-[#F7F7F4] text-balance">
         {title}
       </h2>
-      <p className="mt-4 text-[16px] leading-[1.6] text-[#444444] max-w-[55ch]">
+      <p className="mt-4 text-[16px] leading-[1.6] text-[#A8B0A7] max-w-[55ch]">
         {intro}
       </p>
     </div>
