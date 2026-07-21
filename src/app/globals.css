@@ -25,6 +25,12 @@
 html {
     scroll-behavior: smooth;
     color-scheme: dark;
+    /* White initial background matches the loader — prevents dark flash before JS hydrates */
+    background: #e3e2dc;
+}
+
+body.loader-revealed {
+    background: var(--background);
 }
 
 body {
@@ -96,6 +102,8 @@ body {
         scroll-behavior: auto !important;
     }
 }
+
+
 
 .portrait-lock-overlay {
     display: none;

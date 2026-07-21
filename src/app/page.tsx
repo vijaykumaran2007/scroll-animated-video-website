@@ -10,6 +10,7 @@ import { useGSAP } from "@gsap/react";
 import CreatureTracker from "./components/CreatureTracker";
 import WorkGallery from "./components/WorkGallery";
 import CertificatesGallery from "./components/CertificatesGallery";
+import GlobalLoader from "./components/GlobalLoader";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -112,6 +113,8 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-[#0B1F12] text-[#F7F7F4] selection:bg-indigo-500 selection:text-indigo-950">
+      {/* GlobalLoader lives here — outside any motion/transform hierarchy — so position:fixed works correctly */}
+      <GlobalLoader />
       <div className="relative w-full z-0 overflow-hidden">
         <Hero heroBgY={heroBgY} />
       </div>
@@ -147,12 +150,13 @@ function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block w-3 h-3 -mt-0.5 mr-1.5 align-middle"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
               Coimbatore, India
             </p>
-            <h1 className="text-[clamp(2rem,3.5vw,3.75rem)] font-medium tracking-tight leading-[1.1] text-white text-balance">
+            <h1 className="sr-only">Vijay Adithiya - Software Developer and ML Engineer Portfolio</h1>
+            <h2 className="text-[clamp(2rem,3.5vw,3.75rem)] font-medium tracking-tight leading-[1.1] text-white text-balance">
               Building mobile apps, <br />
               <span className="text-white/80">machine learning</span> <br />
               systems, and immersive <br />
               web experiences.
-            </h1>
+            </h2>
           </div>
 
           <div className="max-w-md pb-6 md:pb-12">
@@ -205,6 +209,7 @@ function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
         href="https://github.com/vijaykumaran2007"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="GitHub Profile"
         className="fixed bottom-8 right-24 z-50 hidden md:flex items-center justify-center w-14 h-14 bg-[#0B1F12]/80 border border-white/20 hover:border-amber-500/60 text-[#A8B0A7] hover:text-amber-600 rounded-full backdrop-blur-md transition-all duration-200"
       >
         <GithubIcon className="w-[22px] h-[22px] stroke-[2px]" />
@@ -693,10 +698,16 @@ function Contact() {
 
                   {/* Footer row */}
                   <div className="flex items-center justify-between">
-                    <span className="text-[10.5px] text-white/25 font-medium tracking-wider">Click to copy</span>
-                    <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] group-hover:bg-white/[0.08] group-hover:border-white/[0.14] transition-all duration-300">
-                      <Copy className="w-[12px] h-[12px] text-[#F7F7F4]/50 group-hover:text-[#F7F7F4]/80 transition-colors duration-300" />
-                      <span className="text-[11px] font-semibold text-[#F7F7F4]/50 group-hover:text-[#F7F7F4]/80 transition-colors duration-300">Copy</span>
+                    <span className="text-[10.5px] text-white/25 font-medium tracking-wider">{copied ? "Copied to clipboard!" : "Click to copy"}</span>
+                    <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full border transition-all duration-300 ${copied ? "bg-amber-600/20 border-amber-600/40" : "bg-white/[0.04] border-white/[0.08] group-hover:bg-white/[0.08] group-hover:border-white/[0.14]"}`}>
+                      {copied ? (
+                        <svg className="w-[12px] h-[12px] text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      ) : (
+                        <Copy className="w-[12px] h-[12px] text-[#F7F7F4]/50 group-hover:text-[#F7F7F4]/80 transition-colors duration-300" />
+                      )}
+                      <span className={`text-[11px] font-semibold transition-colors duration-300 ${copied ? "text-amber-500" : "text-[#F7F7F4]/50 group-hover:text-[#F7F7F4]/80"}`}>
+                        {copied ? "Copied" : "Copy"}
+                      </span>
                     </div>
                   </div>
                 </div>

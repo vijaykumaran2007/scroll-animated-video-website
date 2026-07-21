@@ -152,8 +152,8 @@ export default function CertificatesGallery() {
       const tlReveal = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top bottom",
-          end: "top 10%",
+          start: "top 85%",
+          end: "top 15%",
           scrub: 1,
         }
       });
@@ -170,7 +170,7 @@ export default function CertificatesGallery() {
           clipPath: "inset(0% 0% 0% 0% round 0px)",
           y: "0vh",
           scale: 1,
-          ease: "power2.inOut",
+          ease: "none",
         }, 0
       );
 
