@@ -131,7 +131,7 @@ export default function Home() {
 
 function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
   return (
-    <section id="hero-section" className="relative h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#0B1F12]">
+    <section id="hero-section" className="relative min-h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#0B1F12] pt-20">
       {/* Parallax background */}
       <motion.div
         style={{ y: heroBgY }}
@@ -143,7 +143,7 @@ function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
       </motion.div>
 
       {/* Hero content */}
-      <div className="relative max-w-[90rem] mx-auto w-full px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto">
+      <div className="relative max-w-[90rem] mx-auto w-full px-6 md:px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto mt-20 md:mt-0">
         <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-24">
           <div className="max-w-4xl flex flex-col gap-8">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-amber-600 -mb-4">
@@ -263,40 +263,40 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
       <div className="h-[100vh] sticky top-0 flex items-center justify-center w-full origin-top">
         <motion.div
           style={{ scale, opacity, y }}
-          className="w-full h-[85vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border-[2px] border-amber-500/20 bg-[#162A1E] p-6 md:p-10 overflow-hidden relative group/card flex flex-col will-change-transform"
+          className="w-full h-[90vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border-[2px] border-amber-500/20 bg-[#162A1E] p-5 md:p-10 overflow-y-auto overflow-x-hidden md:overflow-hidden relative group/card flex flex-col will-change-transform scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
           <div className="absolute inset-0 pointer-events-none z-0" style={{ background: THEME_GLOWS[index] }} />
 
-          <div className={`relative z-10 flex flex-col h-full gap-8 ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}>
+          <div className={`relative z-10 flex flex-col h-full gap-6 md:gap-8 ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}>
             {/* Text */}
-            <div className="flex flex-col flex-1 justify-center gap-6">
-              <div className="flex items-center gap-4 mb-2">
-                <span className="font-black leading-none text-[#F7F7F4]/20 tabular-nums" style={{ fontSize: "clamp(3rem, 8vw, 100px)" }}>
+            <div className="flex flex-col flex-none md:flex-1 justify-center gap-4 md:gap-6 pt-2 md:pt-0">
+              <div className="flex items-center gap-3 md:gap-4 mb-1 md:mb-2">
+                <span className="font-black leading-none text-[#F7F7F4]/20 tabular-nums" style={{ fontSize: "clamp(2.5rem, 8vw, 100px)" }}>
                   {project.num}
                 </span>
-                <span className="text-[#F7F7F4] text-[11px] uppercase tracking-[0.2em] font-bold border border-white/10 rounded-full px-4 py-1.5 bg-white/5">
+                <span className="text-[#F7F7F4] text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-bold border border-white/10 rounded-full px-3 py-1.5 bg-white/5">
                   {project.category}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-3xl md:text-5xl font-black text-[#F7F7F4] leading-[1.1] tracking-tight mb-4 text-balance">
+                <h3 className="text-2xl md:text-5xl font-black text-[#F7F7F4] leading-[1.1] tracking-tight mb-2 md:mb-4 text-balance">
                   {project.title}
                 </h3>
-                <p className="text-[17px] text-[#A8B0A7] leading-[1.6] max-w-md font-medium">
+                <p className="text-[14px] md:text-[17px] text-[#A8B0A7] leading-[1.5] md:leading-[1.6] max-w-md font-medium">
                   {project.blurb}
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-1 md:mt-2">
                 {project.stack.map((tag) => (
-                  <span key={tag} className="text-[12px] font-semibold px-3 py-1 rounded-[8px] bg-white/5 text-[#F7F7F4]">
+                  <span key={tag} className="text-[11px] md:text-[12px] font-semibold px-2.5 py-1 rounded-[8px] bg-white/5 text-[#F7F7F4]">
                     {tag}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-4">
+              <div className="mt-2 md:mt-4 pb-4 md:pb-0">
                 <a
                   href={project.url}
                   target="_blank"
