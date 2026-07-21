@@ -176,43 +176,36 @@ export default function CertificatesGallery() {
         }, 0
       );
 
-      // ─── PHASE 2: HEADER ─────────────────────────────────────────────────────────
-      gsap.timeline({
+      // ─── PHASE 2 & 3: CONTENT REVEAL (Scrubbed for perfect fast-scroll syncing) ───
+      const tlContent = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top 45%",
-          toggleActions: "play none none reverse",
+          start: "top 60%",
+          end: "top 10%",
+          scrub: 1,
         }
-      })
+      });
+
+      tlContent
         .fromTo(".cert-label",
           { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 1, ease: "expo.out" }
+          { opacity: 1, y: 0, ease: "power1.out" }
         )
         .fromTo(".cert-heading",
           { opacity: 0, y: 40 },
-          { opacity: 1, y: 0, duration: 1.2, ease: "expo.out" },
-          "-=0.8"
+          { opacity: 1, y: 0, ease: "power1.out" },
+          "<0.1"
         )
         .fromTo(".cert-subtitle",
           { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 1, ease: "power3.out" },
-          "-=0.8"
+          { opacity: 1, y: 0, ease: "power1.out" },
+          "<0.1"
+        )
+        .fromTo(".cert-card-wrapper",
+          { clipPath: "inset(100% 0% 0% 0%)" },
+          { clipPath: "inset(0% 0% 0% 0%)", ease: "none", stagger: 0.1 },
+          "<0.1"
         );
-
-      // ─── PHASE 3: CARDS ───────────────────────────────────────────────────────────
-      gsap.set(".cert-card-wrapper", { clipPath: "inset(100% 0% 0% 0%)" });
-
-      gsap.to(".cert-card-wrapper", {
-        clipPath: "inset(0% 0% 0% 0%)",
-        ease: "power2.inOut",
-        duration: 1.2,
-        stagger: 0.18,
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 20%",
-          toggleActions: "play none none reverse",
-        }
-      });
 
       // ─── PHASE 4: EXIT — starts AFTER entrance ends (top center) ─────────────────
       const tlExit = gsap.timeline({
