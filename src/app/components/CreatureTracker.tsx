@@ -129,6 +129,9 @@ export default function CreatureTracker() {
         canvas.width  = window.innerWidth;
         canvas.height = window.innerHeight;
         lastDrawnIdxRef.current = -1;
+        if (visibleRef.current && !rafRef.current && drawFnRef.current) {
+          rafRef.current = requestAnimationFrame(drawFnRef.current);
+        }
       });
     };
     canvas.width  = window.innerWidth;
@@ -160,12 +163,14 @@ export default function CreatureTracker() {
       const scaleY = canvas.height / frame.height;
       let scale    = Math.max(scaleX, scaleY) * 0.85;
       let x: number, y: number, w: number, h: number;
+      
+      const isMobileLayout = canvas.width <= 768;
 
-      if (IS_TOUCH || IS_MOBILE_WIDTH) {
+      if (IS_TOUCH || isMobileLayout) {
         scale *= 1.5;
         w = frame.width  * scale;
         h = frame.height * scale;
-        x = IS_MOBILE_WIDTH ? (canvas.width / 2) - (w * GAZE_CENTER) : (canvas.width - w) / 2;
+        x = isMobileLayout ? (canvas.width / 2) - (w * GAZE_CENTER) : (canvas.width - w) / 2;
         y = canvas.height - h;
       } else {
         w = frame.width  * scale;
