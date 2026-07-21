@@ -163,14 +163,14 @@ export default function CreatureTracker() {
       const scaleY = canvas.height / frame.height;
       let scale    = Math.max(scaleX, scaleY) * 0.85;
       let x: number, y: number, w: number, h: number;
-      
+
       const isMobileLayout = canvas.width <= 768;
 
-      if (IS_TOUCH || isMobileLayout) {
+      if (isMobileLayout) {
         scale *= 1.5;
         w = frame.width  * scale;
         h = frame.height * scale;
-        x = isMobileLayout ? (canvas.width / 2) - (w * GAZE_CENTER) : (canvas.width - w) / 2;
+        x = (canvas.width / 2) - (w * GAZE_CENTER);
         y = canvas.height - h;
       } else {
         w = frame.width  * scale;
