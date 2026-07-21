@@ -109,14 +109,19 @@ const staggerItem = {
 
 export default function Home() {
   const { scrollY } = useScroll();
-  const heroBgY = useTransform(scrollY, [0, 1000], [0, 600]);
+  
+  // Dramatically increase parallax depth:
+  // Background moves down 850px per 1000px of scroll (stays almost completely fixed, looking very far away)
+  const heroBgY = useTransform(scrollY, [0, 1000], [0, 850]);
+  // Foreground text moves up 250px per 1000px of scroll (moves faster than normal, appearing very close)
+  const heroTextY = useTransform(scrollY, [0, 1000], [0, -250]);
 
   return (
     <div className="relative min-h-screen bg-[#0B1F12] text-[#F7F7F4] selection:bg-indigo-500 selection:text-indigo-950">
       {/* GlobalLoader lives here — outside any motion/transform hierarchy — so position:fixed works correctly */}
       <GlobalLoader />
       <div className="relative w-full z-0 overflow-hidden">
-        <Hero heroBgY={heroBgY} />
+        <Hero heroBgY={heroBgY} heroTextY={heroTextY} />
       </div>
       <Skills />
       <Projects />
@@ -129,10 +134,10 @@ export default function Home() {
 
 /* ─────────────────────────────── HERO ─────────────────────────────── */
 
-function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
+function Hero({ heroBgY, heroTextY }: { heroBgY: MotionValue<number>, heroTextY: MotionValue<number> }) {
   return (
     <section id="hero-section" className="relative min-h-[100dvh] w-full z-0 overflow-hidden flex flex-col bg-[#0B1F12] pt-20">
-      {/* Parallax background */}
+      {/* Parallax background (The Creature Canvas) */}
       <motion.div
         style={{ y: heroBgY }}
         className="absolute inset-0 w-full h-full pointer-events-none z-0 will-change-transform"
@@ -142,8 +147,11 @@ function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
         </div>
       </motion.div>
 
-      {/* Hero content */}
-      <div className="relative max-w-[90rem] mx-auto w-full px-6 md:px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto mt-20 md:mt-0">
+      {/* Hero content — Parallax foreground */}
+      <motion.div 
+        style={{ y: heroTextY }}
+        className="relative max-w-[90rem] mx-auto w-full px-6 md:px-8 flex-1 flex flex-col justify-end pb-12 md:pb-24 z-10 pointer-events-auto mt-20 md:mt-0 will-change-transform"
+      >
         <div className="w-full flex flex-col md:flex-row md:items-end justify-between gap-12 md:gap-24">
           <div className="max-w-4xl flex flex-col gap-8">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-amber-600 -mb-4">
@@ -181,7 +189,7 @@ function Hero({ heroBgY }: { heroBgY: MotionValue<number> }) {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Floating nav */}
       <header className="absolute top-5 left-5 right-5 max-w-[90rem] mx-auto h-14 hidden md:flex items-center justify-between z-50 px-5 pointer-events-auto">
@@ -263,15 +271,15 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
       <div className="h-[100vh] sticky top-0 flex items-center justify-center w-full origin-top">
         <motion.div
           style={{ scale, opacity, y }}
-          className="w-full h-[90vh] md:h-[80vh] rounded-[32px] md:rounded-[48px] border-[2px] border-amber-500/20 bg-[#162A1E] p-5 md:p-10 overflow-y-auto overflow-x-hidden md:overflow-hidden relative group/card flex flex-col will-change-transform scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="w-full h-auto md:h-[80vh] min-h-[60vh] rounded-[32px] md:rounded-[48px] border-[2px] border-amber-500/20 bg-[#162A1E] p-5 md:p-10 overflow-hidden relative group/card flex flex-col will-change-transform"
         >
           <div className="absolute inset-0 pointer-events-none z-0" style={{ background: THEME_GLOWS[index] }} />
 
-          <div className={`relative z-10 flex flex-col h-full gap-6 md:gap-8 ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}>
+          <div className={`relative z-10 flex flex-col h-full gap-4 md:gap-8 ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}>
             {/* Text */}
-            <div className="flex flex-col flex-none md:flex-1 justify-center gap-4 md:gap-6 pt-2 md:pt-0">
+            <div className="flex flex-col flex-none md:flex-1 justify-center gap-3 md:gap-6 pt-2 md:pt-0 pb-4 md:pb-0">
               <div className="flex items-center gap-3 md:gap-4 mb-1 md:mb-2">
-                <span className="font-black leading-none text-[#F7F7F4]/20 tabular-nums" style={{ fontSize: "clamp(2.5rem, 8vw, 100px)" }}>
+                <span className="font-black leading-none text-[#F7F7F4]/20 tabular-nums" style={{ fontSize: "clamp(2rem, 8vw, 100px)" }}>
                   {project.num}
                 </span>
                 <span className="text-[#F7F7F4] text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-bold border border-white/10 rounded-full px-3 py-1.5 bg-white/5">
@@ -280,28 +288,28 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
               </div>
 
               <div>
-                <h3 className="text-2xl md:text-5xl font-black text-[#F7F7F4] leading-[1.1] tracking-tight mb-2 md:mb-4 text-balance">
+                <h3 className="text-[26px] md:text-5xl font-black text-[#F7F7F4] leading-[1.1] tracking-tight mb-2 md:mb-4 text-balance">
                   {project.title}
                 </h3>
-                <p className="text-[14px] md:text-[17px] text-[#A8B0A7] leading-[1.5] md:leading-[1.6] max-w-md font-medium">
+                <p className="text-[13px] sm:text-[14px] md:text-[17px] text-[#A8B0A7] leading-[1.4] md:leading-[1.6] max-w-md font-medium">
                   {project.blurb}
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-2 mt-1 md:mt-2">
                 {project.stack.map((tag) => (
-                  <span key={tag} className="text-[11px] md:text-[12px] font-semibold px-2.5 py-1 rounded-[8px] bg-white/5 text-[#F7F7F4]">
+                  <span key={tag} className="text-[10px] md:text-[12px] font-semibold px-2.5 py-1 rounded-[8px] bg-white/5 text-[#F7F7F4]">
                     {tag}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-2 md:mt-4 pb-4 md:pb-0">
+              <div className="mt-2 md:mt-4">
                 <a
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group/btn inline-flex items-center gap-3 rounded-full bg-white/10 px-6 py-3.5 text-white text-[13px] font-bold uppercase tracking-widest hover:bg-white/20 transition-colors duration-300"
+                  className="group/btn inline-flex items-center gap-3 rounded-full bg-white/10 px-5 md:px-6 py-2.5 md:py-3.5 text-white text-[12px] md:text-[13px] font-bold uppercase tracking-widest hover:bg-white/20 transition-colors duration-300 w-max"
                 >
                   View Project
                   <div className="overflow-hidden relative w-4 h-4">
@@ -313,12 +321,29 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
             </div>
 
             {/* Images */}
-            <div className="flex-1 relative h-full min-h-[300px]">
+            <div className="flex-none md:flex-1 relative w-full mt-4 md:mt-0 md:min-h-[300px]">
+              
+              {/* Mobile Layout: Horizontal Carousel */}
+              <div className="md:hidden flex overflow-x-auto gap-4 w-[calc(100%+40px)] -mx-5 px-5 snap-x snap-mandatory scrollbar-hide pb-2">
+                {project.images.map((img, i) => (
+                  <div key={i} className="relative flex-none w-[85%] aspect-video rounded-[20px] overflow-hidden snap-center shadow-lg bg-[#0B1F12] border border-white/5">
+                    <Image
+                      src={img}
+                      alt={`${project.title} screenshot ${i+1}`}
+                      fill loading="lazy"
+                      sizes="(max-width: 768px) 85vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Layout: 3-Image Grid */}
               <a
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="absolute inset-0 w-full h-full flex gap-4 p-4 group/img"
+                className="hidden md:flex absolute inset-0 w-full h-full gap-4 p-4 group/img"
               >
                 <div className={`flex flex-col gap-4 ${isEven ? "w-[40%]" : "w-[60%]"} h-full justify-center`}>
                   <div
@@ -329,7 +354,7 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
                       src={project.images[isEven ? 0 : 2]}
                       alt={`${project.title} screenshot 1`}
                       fill loading="lazy"
-                      sizes="(max-width: 768px) 50vw, 33vw"
+                      sizes="33vw"
                       className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
                     />
                   </div>
@@ -339,7 +364,7 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
                         src={project.images[1]}
                         alt={`${project.title} screenshot 2`}
                         fill loading="lazy"
-                        sizes="(max-width: 768px) 50vw, 33vw"
+                        sizes="33vw"
                         className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
                       />
                     </div>
@@ -355,7 +380,7 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
                       src={project.images[isEven ? 2 : 0]}
                       alt={`${project.title} screenshot 3`}
                       fill loading="lazy"
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      sizes="50vw"
                       className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
                     />
                   </div>
@@ -365,7 +390,7 @@ function ProjectCard({ project, index, total }: { project: Project; index: numbe
                         src={project.images[1]}
                         alt={`${project.title} screenshot 4`}
                         fill loading="lazy"
-                        sizes="(max-width: 768px) 50vw, 33vw"
+                        sizes="33vw"
                         className="object-cover transition-transform duration-700 ease-out group-hover/img:scale-105 will-change-transform"
                       />
                     </div>

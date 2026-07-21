@@ -93,15 +93,17 @@ const CertCard = ({ cert }: { cert: typeof CERTIFICATIONS[number] }) => {
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#f7f6f2]">
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-black/20 z-10 pointer-events-none" />
-          <Image
-            src={cert.image}
-            alt={cert.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500"
-          />
+        <div className="relative w-full bg-[#f8f7f5] border-b border-black/5" style={{ paddingBottom: "66.66%" }}>
+          {/* Inner padded container using absolute inset for perfect mobile browser support */}
+          <div className="absolute inset-4 md:inset-8">
+            <Image
+              src={cert.image}
+              alt={cert.name}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.1)] group-hover:scale-[1.03] transition-transform duration-500"
+            />
+          </div>
         </div>
         <div className="flex flex-col flex-1 p-8 md:p-10">
           <div className="flex items-center gap-4 mb-5">

@@ -43,7 +43,6 @@ const GalleryCard = ({ item }: { item: GalleryItem }) => (
     className={`gallery-card relative flex-shrink-0 rounded-2xl border-[2px] border-amber-500/20 -ml-6 md:-ml-10 opacity-0`}
     style={{
       contain: "layout paint",
-      willChange: "opacity, transform",
     }}
   >
     <div className={`relative overflow-hidden rounded-2xl bg-[#162A1E] ${SIZE[item.size]}`}>
@@ -68,22 +67,24 @@ export default function WorkGallery() {
   const row2Ref = useRef<HTMLDivElement>(null);
   const [initialized, setInitialized] = useState(false);
 
-  // Infinite auto-scroll using rAF
+  // Infinite auto-scroll using rAF with delta time
   useEffect(() => {
     if (!initialized) return;
 
     let rafId: number;
-    let x1 = -9999; // Initialize safely
+    let x1 = -9999;
     let x2 = 0;
     let w1 = 0;
     let w2 = 0;
+    let lastTime = 0;
+    const SPEED = 0.045; // pixels per millisecond
 
     const measure = () => {
       if (row1Ref.current && row1Ref.current.children.length > ROW_1.length) {
         const c1 = row1Ref.current.children[0] as HTMLElement;
         const c2 = row1Ref.current.children[ROW_1.length] as HTMLElement;
         w1 = c2.offsetLeft - c1.offsetLeft;
-        if (x1 === -9999) x1 = -w1; // Start off shifted so it can move right
+        if (x1 === -9999) x1 = -w1;
       }
       if (row2Ref.current && row2Ref.current.children.length > ROW_2.length) {
         const c1 = row2Ref.current.children[0] as HTMLElement;
@@ -92,18 +93,23 @@ export default function WorkGallery() {
       }
     };
 
-    // Slight delay to ensure images/layout are painted before measuring
     const t = setTimeout(measure, 100);
     window.addEventListener('resize', measure);
 
-    const applyTransform = () => {
+    const applyTransform = (time: number) => {
+      if (!lastTime) lastTime = time;
+      const delta = time - lastTime;
+      lastTime = time;
+
       if (w1 > 0 && w2 > 0 && x1 !== -9999) {
+        const moveAmount = SPEED * delta;
+        
         // Row 1 moves right
-        x1 += 0.8;
+        x1 += moveAmount;
         if (x1 >= 0) x1 -= w1;
         
         // Row 2 moves left
-        x2 -= 0.8;
+        x2 -= moveAmount;
         if (Math.abs(x2) >= w2) x2 += w2;
 
         if (row1Ref.current) row1Ref.current.style.transform = `translate3d(${x1}px, 0, 0)`;
