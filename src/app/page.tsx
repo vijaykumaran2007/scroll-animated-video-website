@@ -172,17 +172,17 @@ function Hero({ heroBgY, heroTextY }: { heroBgY: MotionValue<number>, heroTextY:
               I&apos;m Vijay, a CS undergrad at PSG iTech. I build with Flutter
               and Firebase, dive deep into machine learning, and craft websites that feel alive.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-row items-center gap-3 md:gap-4">
               <a
                 href="#projects"
-                className="flex items-center gap-2 bg-white text-black px-5 py-3 rounded-[10px] text-[15px] font-semibold hover:bg-white/90 transition-colors"
+                className="flex items-center justify-center gap-2 bg-white text-black px-4 md:px-5 py-3 rounded-[10px] text-[13px] md:text-[15px] font-semibold hover:bg-white/90 transition-colors whitespace-nowrap"
               >
                 View selected work
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="md:w-[18px] md:h-[18px]"><circle cx="12" cy="12" r="10"/><path d="m10 8 4 4-4 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
               </a>
               <a
                 href="mailto:vijaykumaran2007@gmail.com"
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-md text-white px-5 py-3 rounded-[10px] text-[15px] font-medium border border-white/20 hover:bg-white/20 transition-colors"
+                className="flex items-center justify-center gap-2 bg-white/10 backdrop-blur-md text-white px-4 md:px-5 py-3 rounded-[10px] text-[13px] md:text-[15px] font-medium border border-white/20 hover:bg-white/20 transition-colors whitespace-nowrap"
               >
                 Email me
               </a>

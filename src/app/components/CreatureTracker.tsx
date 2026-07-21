@@ -159,12 +159,16 @@ export default function CreatureTracker() {
       lastDrawnIdxRef.current = safe;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      const isMobileLayout = canvas.width <= 768;
+
       const scaleX = canvas.width  / frame.width;
-      const scaleY = canvas.height / frame.height;
+      // Use screen.height on mobile to prevent the creature from enlarging/shrinking
+      // when the mobile browser's address bar hides/shows (which changes canvas.height)
+      const stableHeight = isMobileLayout ? window.screen.height : canvas.height;
+      const scaleY = stableHeight / frame.height;
+      
       let scale    = Math.max(scaleX, scaleY) * 0.85;
       let x: number, y: number, w: number, h: number;
-
-      const isMobileLayout = canvas.width <= 768;
 
       if (isMobileLayout) {
         scale *= 1.5;
