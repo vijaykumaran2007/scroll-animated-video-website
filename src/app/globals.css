@@ -31,6 +31,8 @@ html {
 
 body.loader-revealed {
     background: var(--background);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 body {
@@ -45,7 +47,7 @@ body {
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow: hidden; /* Prevent scrolling during loading */
     text-rendering: optimizeLegibility;
 }
 

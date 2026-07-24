@@ -26,8 +26,26 @@ export default function LenisWrapper({
     const onTick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(onTick);
     gsap.ticker.lagSmoothing(0); // disable lag compensation for crisp scroll
+    
+    // Stop Lenis initially because the loading screen is active
+    lenis.stop();
+    
+    import("../store").then(({ loadingStore }) => {
+      const unsub = loadingStore.subscribe(() => {
+        if (loadingStore.progress >= 100 && loadingStore.revealing) {
+          // Wait a tiny bit for the reveal animation to finish its first frame
+          setTimeout(() => lenis.start(), 100);
+        } else {
+          lenis.stop();
+        }
+      });
+      
+      // Store the unsub function on the lenis instance so we can clean it up
+      (lenis as any)._unsubLoader = unsub;
+    });
 
     return () => {
+      if ((lenis as any)._unsubLoader) (lenis as any)._unsubLoader();
       gsap.ticker.remove(onTick);
       lenis.destroy();
     };
